@@ -53,7 +53,6 @@
         input::placeholder { color: #64748b !important; opacity: 1 !important; font-weight: 500; }
         #search-input { color: #000000 !important; }
 
-        /* --- PERBAIKAN SCROLLBAR (GARIS PUTIH) --- */
         #results::-webkit-scrollbar, 
         #table-scroll-container::-webkit-scrollbar {
             width: 6px;
@@ -64,21 +63,20 @@
         }
         #results::-webkit-scrollbar-thumb, 
         #table-scroll-container::-webkit-scrollbar-thumb {
-            background: #cbd5e1; /* Warna abu-abu lembut saat light mode */
+            background: #cbd5e1;
             border-radius: 10px;
         }
         .dark #results::-webkit-scrollbar-thumb, 
         .dark #table-scroll-container::-webkit-scrollbar-thumb {
-            background: #475569; /* Warna gelap saat dark mode agar tidak kontras putih */
+            background: #475569;
         }
-        /* Sembunyikan scrollbar di Firefox */
         #results, #table-scroll-container {
             scrollbar-width: thin;
             scrollbar-color: #475569 transparent;
         }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 min-h-screen pb-20 transition-colors duration-300">
+<body class="bg-slate-50 dark:bg-slate-950 min-h-screen pb-10 transition-colors duration-300">
 
     <div class="bg-emerald-900 text-white py-2 marquee-container border-b border-emerald-700">
         <div class="marquee-content animate-marquee" id="marquee-1"></div>
@@ -104,7 +102,7 @@
         </div>
     </header>
 
-    <main class="w-[90%] mx-auto -mt-12 px-2 relative z-10">
+    <main class="w-[90%] mx-auto -mt-12 px-2 relative z-10 mb-12">
         <div id="empty-state" class="glass-card rounded-3xl p-12 text-center shadow-xl">
             <div class="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i data-lucide="map-pin" class="w-10 h-10 text-emerald-600"></i>
@@ -156,6 +154,23 @@
             </div>
         </div>
     </main>
+
+    <footer class="w-[90%] mx-auto pb-12 text-center border-t border-slate-200 dark:border-slate-800 pt-8">
+        <div class="flex flex-col items-center gap-4">
+            <div class="flex items-center gap-2 text-slate-400 dark:text-slate-600">
+                <i data-lucide="info" class="w-4 h-4"></i>
+                <p class="text-xs font-medium uppercase tracking-widest">Informasi Data</p>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed max-w-md">
+                Data jadwal imsakiyah ini bersumber dari <span class="font-bold text-emerald-600">Kementerian Agama Republik Indonesia</span> melalui sistem integrasi data Bimas Islam.
+            </p>
+            <div class="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] mt-2">
+                <span>&copy; 2026</span>
+                <span class="mx-2">•</span>
+                <span>Ramadan Kareem</span>
+            </div>
+        </div>
+    </footer>
 
     <script>
         let kotaList = [];
