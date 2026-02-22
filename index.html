@@ -30,35 +30,19 @@
     <style>
         * { font-family: 'Lexend', sans-serif !important; }
         
-        /* Warna Teks Global Tajam */
         body { color: #000000; }
         .dark body { color: #ffffff; }
 
         #timer { font-size: 3.5rem !important; line-height: 1 !important; font-variant-numeric: tabular-nums; }
         
-        /* Kartu */
         .glass-card { background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.1); }
         .dark .glass-card { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); }
         
-        /* Baris Hari Ini - WAJIB PUTIH TEKSNYA */
-        .row-today { 
-            background-color: #059669 !important; 
-        }
-        .row-today td, 
-        .row-today td span,
-        .row-today td i { 
-            color: #ffffff !important; 
-            font-weight: 800 !important; 
-        }
+        .row-today { background-color: #059669 !important; }
+        .row-today td, .row-today td span, .row-today td i { color: #ffffff !important; font-weight: 800 !important; }
 
-        .dark .row-today { 
-            background-color: #10b981 !important;
-        }
-        /* Memastikan di dark mode pun baris aktif tetap putih teksnya */
-        .dark .row-today td,
-        .dark .row-today td span {
-            color: #ffffff !important;
-        }
+        .dark .row-today { background-color: #10b981 !important; }
+        .dark .row-today td, .dark .row-today td span { color: #ffffff !important; }
 
         .sticky-th { position: sticky; top: 0; z-index: 10; background-color: #ffffff; border-bottom: 2px solid #000; }
         .dark .sticky-th { background-color: #1e293b; border-bottom: 2px solid #fff; }
@@ -66,8 +50,32 @@
         .marquee-container { overflow: hidden; white-space: nowrap; display: flex; }
         .marquee-content { display: flex; flex-shrink: 0; min-width: 100%; align-items: center; }
 
-        input::placeholder { color: #475569 !important; opacity: 1 !important; }
-        .dark input::placeholder { color: #cbd5e1 !important; }
+        input::placeholder { color: #64748b !important; opacity: 1 !important; font-weight: 500; }
+        #search-input { color: #000000 !important; }
+
+        /* --- PERBAIKAN SCROLLBAR (GARIS PUTIH) --- */
+        #results::-webkit-scrollbar, 
+        #table-scroll-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        #results::-webkit-scrollbar-track, 
+        #table-scroll-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #results::-webkit-scrollbar-thumb, 
+        #table-scroll-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* Warna abu-abu lembut saat light mode */
+            border-radius: 10px;
+        }
+        .dark #results::-webkit-scrollbar-thumb, 
+        .dark #table-scroll-container::-webkit-scrollbar-thumb {
+            background: #475569; /* Warna gelap saat dark mode agar tidak kontras putih */
+        }
+        /* Sembunyikan scrollbar di Firefox */
+        #results, #table-scroll-container {
+            scrollbar-width: thin;
+            scrollbar-color: #475569 transparent;
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 min-h-screen pb-20 transition-colors duration-300">
@@ -84,10 +92,10 @@
 
             <div class="flex items-center gap-2 max-w-lg mx-auto relative">
                 <div class="relative flex-1">
-                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-800 w-5 h-5"></i>
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"></i>
                     <input type="text" id="search-input" placeholder="Cari Kota/Kabupaten..." 
-                        class="w-full pl-12 pr-4 py-4 rounded-2xl bg-white shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-black font-bold">
-                    <div id="results" class="absolute left-0 right-0 z-[100] mt-2 bg-white dark:bg-slate-800 rounded-2xl max-h-72 overflow-y-auto hidden shadow-2xl border border-slate-200 text-left text-black dark:text-white"></div>
+                        class="w-full pl-12 pr-4 py-4 rounded-2xl bg-white shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold">
+                    <div id="results" class="absolute left-0 right-0 z-[100] mt-2 bg-white dark:bg-slate-800 rounded-2xl max-h-72 overflow-y-auto hidden shadow-2xl border border-slate-200 dark:border-slate-700 text-left text-black dark:text-white"></div>
                 </div>
                 <button onclick="toggleDarkMode()" class="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl border border-white/20 backdrop-blur-sm transition-all">
                     <i id="theme-icon" data-lucide="sun-moon" class="w-6 h-6"></i>
@@ -102,7 +110,7 @@
                 <i data-lucide="map-pin" class="w-10 h-10 text-emerald-600"></i>
             </div>
             <h2 class="text-xl font-bold mb-2">Pilih Lokasi Terlebih Dahulu</h2>
-            <p class="text-black dark:text-white font-bold">Silakan cari kota Anda untuk melihat jadwal.</p>
+            <p class="text-slate-500 dark:text-slate-400 font-medium">Silakan cari kota Anda untuk melihat jadwal.</p>
         </div>
 
         <div id="main-ui" class="hidden space-y-6">
@@ -114,12 +122,12 @@
                             <span id="city-name-display" class="tracking-widest uppercase text-sm">-</span>
                         </div>
                         <h2 id="current-date-display" class="text-2xl font-black mb-1">...</h2>
-                        <p id="hijri-display" class="text-black dark:text-white font-bold">...</p>
+                        <p id="hijri-display" class="text-slate-500 dark:text-slate-400 font-bold">...</p>
                     </div>
                     <div class="bg-emerald-50 dark:bg-slate-900 border border-emerald-100 dark:border-slate-700 rounded-3xl p-6 text-center">
                         <span id="label-status" class="text-xs font-black tracking-widest text-emerald-700 dark:text-emerald-400 uppercase">Menghitung</span>
-                        <div id="timer" class="font-black my-2 text-black dark:text-white">00:00:00</div>
-                        <div id="clock" class="text-lg font-bold text-black dark:text-white italic">--:--:--</div>
+                        <div id="timer" class="font-black my-2 text-slate-900 dark:text-white">00:00:00</div>
+                        <div id="clock" class="text-lg font-bold text-slate-600 dark:text-slate-400 italic">--:--:--</div>
                     </div>
                 </div>
                 <div id="grid-times" class="grid grid-cols-3 md:grid-cols-6 gap-3 mt-10"></div>
@@ -127,12 +135,12 @@
 
             <div class="glass-card rounded-3xl shadow-xl overflow-hidden">
                 <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                    <h3 id="table-title" class="font-black text-black dark:text-white">Daftar Jadwal Ramadan</h3>
+                    <h3 id="table-title" class="font-black text-slate-900 dark:text-white">Daftar Jadwal Ramadan</h3>
                 </div>
                 <div class="overflow-x-auto max-h-[550px] overflow-y-auto" id="table-scroll-container">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="sticky-th text-[12px] text-black dark:text-white uppercase tracking-wider font-black">
+                            <tr class="sticky-th text-[12px] text-slate-900 dark:text-white uppercase tracking-wider font-black">
                                 <th class="px-6 py-4 text-center">Ramadan</th>
                                 <th class="px-4 py-4 text-emerald-700 dark:text-emerald-400">Imsak</th>
                                 <th class="px-4 py-4">Subuh</th>
@@ -153,12 +161,8 @@
         let kotaList = [];
         let jadwalRamadan = [];
         let currentOffset = 7; 
-        let lastDateChecked = new Date().toLocaleDateString('en-CA');
         
-        const CONFIG = {
-           hijriYear: "1448 H",       // 1. Ganti tahun Hijriah
-           startDate: "2027-03-09"    // 2. Ganti tanggal mulai 1 Ramadan tahun tersebut
-        };
+        const CONFIG = { hijriYear: "1447 H", startDate: "2026-02-19" };
 
         function formatNamaKota(nama) {
             let n = nama.toUpperCase();
@@ -175,34 +179,20 @@
             const yearMasehi = new Date(CONFIG.startDate).getFullYear();
             document.getElementById('year-badge').innerText = `RAMADAN ${CONFIG.hijriYear} / ${yearMasehi} M`;
             document.getElementById('table-title').innerText = `Daftar Jadwal Ramadan ${CONFIG.hijriYear}`;
-            
-            const marqueeHTML = `
-                <span class="mx-2 text-sm italic font-bold">✨ Marhaban Ya Ramadan</span>
-                <span class="mx-2 text-sm">|</span>
-                <span class="mx-2 text-sm italic font-bold">🕌 Selamat Menunaikan Ibadah Puasa</span>
-            `.repeat(5); 
+            const marqueeHTML = `<span class="mx-2 text-sm italic font-bold">✨ Marhaban Ya Ramadan</span> <span class="mx-2 text-sm">|</span> <span class="mx-2 text-sm italic font-bold">🕌 Selamat Menunaikan Ibadah Puasa</span>`.repeat(5); 
             document.getElementById('marquee-1').innerHTML = marqueeHTML;
             document.getElementById('marquee-2').innerHTML = marqueeHTML;
-
             if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
         }
 
         async function init() {
             setupUI();
             lucide.createIcons();
-            
             try {
                 const res = await fetch('https://api.myquran.com/v2/sholat/kota/semua');
                 const json = await res.json();
                 kotaList = json.data;
-
-                const savedCity = localStorage.getItem('selectedCity');
-                if (savedCity) {
-                    const cityData = JSON.parse(savedCity);
-                    getRamadanJadwal(cityData.id, cityData.nama);
-                }
             } catch (e) { console.error("Gagal ambil daftar kota"); }
-            
             setInterval(updateClock, 1000);
         }
 
@@ -216,12 +206,9 @@
             if(match.length > 0) {
                 results.innerHTML = match.map(k => {
                     const namaTampil = formatNamaKota(k.lokasi);
-                    return `
-                    <div onclick="getRamadanJadwal('${k.id}', '${namaTampil}')" class="px-5 py-4 hover:bg-emerald-50 dark:hover:bg-slate-700/50 cursor-pointer flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0 text-black dark:text-white">
-                        <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i>
-                        <span class="font-bold">${namaTampil}</span>
-                    </div>
-                `}).join('');
+                    return `<div onclick="getRamadanJadwal('${k.id}', '${namaTampil}')" class="px-5 py-4 hover:bg-emerald-50 dark:hover:bg-slate-700/50 cursor-pointer flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0 text-slate-900 dark:text-white">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i><span class="font-bold">${namaTampil}</span></div>`
+                }).join('');
                 lucide.createIcons();
                 results.classList.remove('hidden');
             } else { results.classList.add('hidden'); }
@@ -230,41 +217,33 @@
         async function getRamadanJadwal(id, nama) {
             input.value = '';
             results.classList.add('hidden');
-            localStorage.setItem('selectedCity', JSON.stringify({id, nama}));
-
             document.getElementById('city-name-display').innerText = nama;
             document.getElementById('empty-state').classList.add('hidden');
             document.getElementById('main-ui').classList.remove('hidden');
-
+            
             const n = nama.toUpperCase();
             if (n.match(/BALI|DENPASAR|MAKASSAR|MANADO|SAMARINDA|KUPANG|MATARAM|GORONTALO|BALIKPAPAN/)) currentOffset = 8; 
             else if (n.match(/PAPUA|MALUKU|AMBON|JAYAPURA|SORONG|TERNATE/)) currentOffset = 9; 
             else currentOffset = 7; 
 
             const startDate = new Date(CONFIG.startDate);
-            const year = startDate.getFullYear();
-            const month = startDate.getMonth() + 1;
-            
-            const nextDate = new Date(year, month, 1);
-            const nextYear = nextDate.getFullYear();
-            const nextMonth = nextDate.getMonth() + 1;
-
             try {
                 const [resCurrent, resNext] = await Promise.all([
-                    fetch(`https://api.myquran.com/v2/sholat/jadwal/${id}/${year}/${month.toString().padStart(2,'0')}`),
-                    fetch(`https://api.myquran.com/v2/sholat/jadwal/${id}/${nextYear}/${nextMonth.toString().padStart(2,'0')}`)
+                    fetch(`https://api.myquran.com/v2/sholat/jadwal/${id}/${startDate.getFullYear()}/${(startDate.getMonth()+1).toString().padStart(2,'0')}`),
+                    fetch(`https://api.myquran.com/v2/sholat/jadwal/${id}/${startDate.getFullYear()}/${(startDate.getMonth()+2).toString().padStart(2,'0')}`)
                 ]);
                 const jsonCurrent = await resCurrent.json();
                 const jsonNext = await resNext.json();
+                
                 if(jsonCurrent.status && jsonNext.status) {
                     const combined = [...jsonCurrent.data.jadwal, ...jsonNext.data.jadwal];
                     const startIndex = combined.findIndex(d => d.date === CONFIG.startDate);
-                    if (startIndex !== -1) {
-                        jadwalRamadan = combined.slice(startIndex, startIndex + 30);
-                        render(jadwalRamadan);
+                    if (startIndex !== -1) { 
+                        jadwalRamadan = combined.slice(startIndex, startIndex + 30); 
+                        render(jadwalRamadan); 
                     }
                 }
-            } catch (e) { console.error("Gagal memuat jadwal."); }
+            } catch (e) { alert("Gagal memuat jadwal."); }
         }
 
         function render(list) {
@@ -277,9 +256,8 @@
             const todayStr = cityNow.toLocaleDateString('en-CA'); 
             
             document.getElementById('current-date-display').innerText = cityNow.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
-
+            
             const currentJadwalToday = list.find(d => d.date === todayStr) || list[0];
-
             const times = [
                 {label: 'Imsak', time: currentJadwalToday.imsak, highlight: true},
                 {label: 'Subuh', time: currentJadwalToday.subuh},
@@ -289,81 +267,55 @@
                 {label: 'Isya', time: currentJadwalToday.isya}
             ];
 
-            grid.innerHTML = times.map(t => `
-                <div class="p-3 rounded-2xl border transition-all ${t.highlight ? 'bg-emerald-600 text-white shadow-lg' : 'bg-white dark:bg-slate-800 text-black dark:text-white border-slate-200 dark:border-slate-700'}">
-                    <p class="text-[10px] font-black uppercase mb-1 text-center">${t.label}</p>
-                    <p class="font-black text-base text-center">${t.time}</p>
-                </div>
-            `).join('');
-
+            grid.innerHTML = times.map(t => `<div class="p-3 rounded-2xl border transition-all ${t.highlight ? 'bg-emerald-600 text-white shadow-lg font-black' : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700'}">
+                    <p class="text-[10px] uppercase mb-1 text-center font-black opacity-80">${t.label}</p><p class="text-base text-center font-black">${t.time}</p></div>`).join('');
+            
             list.forEach((d, index) => {
                 const isToday = d.date === todayStr;
                 const tr = document.createElement('tr');
                 if(isToday) { tr.className = 'row-today'; tr.id = 'today-row'; }
-                tr.innerHTML = `
-                    <td class="px-6 py-4 text-center">Ke-${index + 1}</td>
-                    <td class="px-4 py-4 text-emerald-700 dark:text-emerald-400">${d.imsak}</td>
-                    <td class="px-4 py-4">${d.subuh}</td>
-                    <td class="px-4 py-4">${d.dzuhur}</td>
-                    <td class="px-4 py-4">${d.ashar}</td>
-                    <td class="px-4 py-4 text-emerald-700 dark:text-emerald-400">${d.maghrib}</td>
-                    <td class="px-4 py-4">${d.isya}</td>
-                `;
+                tr.innerHTML = `<td class="px-6 py-4 text-center">Ke-${index + 1}</td><td class="px-4 py-4">${d.imsak}</td><td class="px-4 py-4">${d.subuh}</td><td class="px-4 py-4">${d.dzuhur}</td><td class="px-4 py-4">${d.ashar}</td><td class="px-4 py-4">${d.maghrib}</td><td class="px-4 py-4">${d.isya}</td>`;
                 table.appendChild(tr);
             });
 
             document.getElementById('hijri-display').innerText = currentJadwalToday.tanggal;
             
-            setTimeout(() => {
-                const row = document.getElementById('today-row');
-                if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 600);
+            setTimeout(() => { 
+                const row = document.getElementById('today-row'); 
+                if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+            }, 300);
         }
 
         function updateClock() {
             const nowUTC = new Date().getTime() + (new Date().getTimezoneOffset() * 60000);
             const cityTime = new Date(nowUTC + (3600000 * currentOffset));
             const todayStr = cityTime.toLocaleDateString('en-CA');
-
-            if (todayStr !== lastDateChecked && jadwalRamadan.length > 0) {
-                lastDateChecked = todayStr;
-                render(jadwalRamadan);
-            }
-
             const tzName = currentOffset === 7 ? "WIB" : currentOffset === 8 ? "WITA" : "WIT";
+            
             const timeStr = cityTime.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', second:'2-digit', hour12: false}).replace(/\./g, ':');
             document.getElementById('clock').innerText = `${timeStr} ${tzName}`;
 
             if (!jadwalRamadan || jadwalRamadan.length === 0) return;
-            
-            const tomorrowTime = new Date(cityTime.getTime() + 86400000);
-            const tomorrowStr = tomorrowTime.toLocaleDateString('en-CA');
-            const todayJadwal = jadwalRamadan.find(d => d.date === todayStr);
-            const tomorrowJadwal = jadwalRamadan.find(d => d.date === tomorrowStr);
 
-            const parseToDate = (dateStr, timeStr) => {
-                const [h, m] = timeStr.split(':');
-                const d = new Date(dateStr);
-                d.setHours(parseInt(h), parseInt(m), 0, 0);
-                return d;
+            const todayJadwal = jadwalRamadan.find(d => d.date === todayStr);
+            const tomorrowTime = new Date(cityTime.getTime() + 86400000);
+            const tomorrowJadwal = jadwalRamadan.find(d => d.date === tomorrowTime.toLocaleDateString('en-CA'));
+            
+            const parseToDate = (dateStr, timeStr) => { 
+                const [h, m] = timeStr.split(':'); 
+                const d = new Date(dateStr); 
+                d.setHours(parseInt(h), parseInt(m), 0, 0); 
+                return d; 
             };
 
-            let target = null;
-            let status = "";
-
+            let target = null, status = "";
             if (todayJadwal) {
                 const imsakToday = parseToDate(todayJadwal.date, todayJadwal.imsak);
                 const maghribToday = parseToDate(todayJadwal.date, todayJadwal.maghrib);
-                if (cityTime < imsakToday) {
-                    target = imsakToday;
-                    status = "Menuju Imsak";
-                } else if (cityTime < maghribToday) {
-                    target = maghribToday;
-                    status = "Menuju Buka Puasa";
-                } else if (tomorrowJadwal) {
-                    target = parseToDate(tomorrowJadwal.date, tomorrowJadwal.imsak);
-                    status = "Menuju Imsak Besok";
-                }
+                
+                if (cityTime < imsakToday) { target = imsakToday; status = "Menuju Imsak"; }
+                else if (cityTime < maghribToday) { target = maghribToday; status = "Menuju Buka Puasa"; }
+                else if (tomorrowJadwal) { target = parseToDate(tomorrowJadwal.date, tomorrowJadwal.imsak); status = "Menuju Imsak Besok"; }
             }
 
             if (target) {
