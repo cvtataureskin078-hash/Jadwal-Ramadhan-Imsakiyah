@@ -59,8 +59,8 @@
                         class="w-full pl-12 pr-4 py-4 rounded-2xl bg-white shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800">
                     <div id="results" class="absolute left-0 right-0 z-[100] mt-2 bg-white dark:bg-slate-800 rounded-2xl max-h-72 overflow-y-auto hidden shadow-2xl border border-slate-100 dark:border-slate-700 text-left"></div>
                 </div>
-                <button onclick="document.documentElement.classList.toggle('dark')" class="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl border border-white/20 backdrop-blur-sm transition-all">
-                    <i data-lucide="sun-moon" class="w-6 h-6"></i>
+                <button onclick="toggleDarkMode()" class="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl border border-white/20 backdrop-blur-sm transition-all">
+                    <i id="theme-icon" data-lucide="sun-moon" class="w-6 h-6"></i>
                 </button>
             </div>
         </div>
@@ -99,7 +99,7 @@
                 <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50">
                     <h3 id="table-title" class="font-bold text-slate-700 dark:text-slate-200">Daftar Jadwal Ramadan</h3>
                 </div>
-                <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+                <div class="overflow-x-auto max-h-[500px] overflow-y-auto" id="table-scroll-container">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="sticky-th text-[12px] text-slate-400 uppercase tracking-wider">
@@ -124,27 +124,29 @@
         let jadwalRamadan = [];
         let selectedCityName = "";
         let currentOffset = 7; 
+        let lastDateChecked = new Date().toLocaleDateString('en-CA');
         
         const CONFIG = {
             hijriYear: "1447 H",
             startDate: "2026-02-19" 
         };
 
-        // Fungsi bantuan untuk merapikan nama kota (KOTA JAKARTA -> DKI JAKARTA)
         function formatNamaKota(nama) {
             let n = nama.toUpperCase();
-            if (n.includes("KOTA JAKARTA")) {
-                return n.replace("KOTA JAKARTA", "DKI JAKARTA");
-            }
+            if (n.includes("KOTA JAKARTA")) return n.replace("KOTA JAKARTA", "DKI JAKARTA");
             return n;
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
         }
 
         function setupUI() {
             const yearMasehi = new Date(CONFIG.startDate).getFullYear();
             document.getElementById('year-badge').innerText = `RAMADAN ${CONFIG.hijriYear} / ${yearMasehi} M`;
             document.getElementById('table-title').innerText = `Daftar Jadwal Ramadan ${CONFIG.hijriYear}`;
-            document.getElementById('empty-state-text').innerText = `Silakan cari kota Anda untuk melihat jadwal Ramadan ${CONFIG.hijriYear}.`;
-
+            
             const marqueeHTML = `
                 <span class="mx-2 text-sm italic">✨ Marhaban Ya Ramadan</span>
                 <span class="mx-2 text-sm opacity-50">|</span>
@@ -152,17 +154,25 @@
             `.repeat(5); 
             document.getElementById('marquee-1').innerHTML = marqueeHTML;
             document.getElementById('marquee-2').innerHTML = marqueeHTML;
+
+            if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
         }
 
         async function init() {
             setupUI();
             lucide.createIcons();
-            document.getElementById('current-date-display').innerText = new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
             
             try {
                 const res = await fetch('https://api.myquran.com/v2/sholat/kota/semua');
                 const json = await res.json();
                 kotaList = json.data;
+
+                // Cek jika ada kota yang tersimpan sebelumnya
+                const savedCity = localStorage.getItem('selectedCity');
+                if (savedCity) {
+                    const cityData = JSON.parse(savedCity);
+                    getRamadanJadwal(cityData.id, cityData.nama);
+                }
             } catch (e) { console.error("Gagal ambil daftar kota"); }
             
             setInterval(updateClock, 1000);
@@ -193,19 +203,18 @@
             input.value = '';
             results.classList.add('hidden');
             selectedCityName = nama;
+            
+            // Simpan ke localstorage
+            localStorage.setItem('selectedCity', JSON.stringify({id, nama}));
+
             document.getElementById('city-name-display').innerText = nama;
             document.getElementById('empty-state').classList.add('hidden');
             document.getElementById('main-ui').classList.remove('hidden');
 
             const n = nama.toUpperCase();
-            // Logika Zona Waktu
-            if (n.match(/BALI|DENPASAR|MAKASSAR|MANADO|SAMARINDA|KUPANG|MATARAM|GORONTALO|BALIKPAPAN/)) {
-                currentOffset = 8; 
-            } else if (n.match(/PAPUA|MALUKU|AMBON|JAYAPURA|SORONG|TERNATE/)) {
-                currentOffset = 9; 
-            } else {
-                currentOffset = 7; 
-            }
+            if (n.match(/BALI|DENPASAR|MAKASSAR|MANADO|SAMARINDA|KUPANG|MATARAM|GORONTALO|BALIKPAPAN/)) currentOffset = 8; 
+            else if (n.match(/PAPUA|MALUKU|AMBON|JAYAPURA|SORONG|TERNATE/)) currentOffset = 9; 
+            else currentOffset = 7; 
 
             const startDate = new Date(CONFIG.startDate);
             const year = startDate.getFullYear();
@@ -230,11 +239,9 @@
                     if (startIndex !== -1) {
                         jadwalRamadan = combined.slice(startIndex, startIndex + 30);
                         render(jadwalRamadan);
-                    } else {
-                        alert("Tanggal mulai Ramadan tidak ditemukan di data API.");
                     }
                 }
-            } catch (e) { alert("Gagal memuat jadwal."); }
+            } catch (e) { console.error("Gagal memuat jadwal."); }
         }
 
         function render(list) {
@@ -246,6 +253,8 @@
             const cityNow = new Date(nowUTC + (3600000 * currentOffset));
             const todayStr = cityNow.toLocaleDateString('en-CA'); 
             
+            document.getElementById('current-date-display').innerText = cityNow.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
+
             const currentJadwalToday = list.find(d => d.date === todayStr) || list[0];
 
             const times = [
@@ -281,18 +290,31 @@
             });
 
             document.getElementById('hijri-display').innerText = currentJadwalToday.tanggal;
-            setTimeout(() => { document.getElementById('today-row')?.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 500);
+            
+            // Scroll otomatis ke hari ini
+            setTimeout(() => {
+                const row = document.getElementById('today-row');
+                if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 600);
         }
 
         function updateClock() {
             const nowUTC = new Date().getTime() + (new Date().getTimezoneOffset() * 60000);
             const cityTime = new Date(nowUTC + (3600000 * currentOffset));
+            const todayStr = cityTime.toLocaleDateString('en-CA');
+
+            // Deteksi pergantian hari untuk auto-update UI
+            if (todayStr !== lastDateChecked && jadwalRamadan.length > 0) {
+                lastDateChecked = todayStr;
+                render(jadwalRamadan);
+            }
+
             const tzName = currentOffset === 7 ? "WIB" : currentOffset === 8 ? "WITA" : "WIT";
             const timeStr = cityTime.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', second:'2-digit', hour12: false}).replace(/\./g, ':');
             document.getElementById('clock').innerText = `${timeStr} ${tzName}`;
 
             if (!jadwalRamadan || jadwalRamadan.length === 0) return;
-            const todayStr = cityTime.toLocaleDateString('en-CA');
+            
             const tomorrowTime = new Date(cityTime.getTime() + 86400000);
             const tomorrowStr = tomorrowTime.toLocaleDateString('en-CA');
             const todayJadwal = jadwalRamadan.find(d => d.date === todayStr);
