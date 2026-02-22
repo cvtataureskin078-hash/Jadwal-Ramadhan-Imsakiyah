@@ -30,37 +30,43 @@
     <style>
         * { font-family: 'Lexend', sans-serif !important; }
         
-        /* Netralkan warna teks global agar tajam */
-        body { color: #000000 !important; }
-        .dark body { color: #ffffff !important; }
+        /* Warna Teks Global Tajam */
+        body { color: #000000; }
+        .dark body { color: #ffffff; }
 
         #timer { font-size: 3.5rem !important; line-height: 1 !important; font-variant-numeric: tabular-nums; }
-        .glass-card { background: rgba(255, 255, 255, 1); backdrop-filter: blur(10px); border: 1px solid rgba(0, 0, 0, 0.1); }
-        .dark .glass-card { background: rgba(30, 41, 59, 1); border: 1px solid rgba(255, 255, 255, 0.1); }
         
-        /* Baris Hari Ini - Putih Bersih */
+        /* Kartu */
+        .glass-card { background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.1); }
+        .dark .glass-card { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Baris Hari Ini - WAJIB PUTIH TEKSNYA */
         .row-today { 
             background-color: #059669 !important; 
         }
         .row-today td, 
-        .row-today td span { 
+        .row-today td span,
+        .row-today td i { 
             color: #ffffff !important; 
-            font-weight: 700 !important; 
+            font-weight: 800 !important; 
         }
 
         .dark .row-today { 
             background-color: #10b981 !important;
         }
-        .dark .row-today td { color: #000000 !important; }
+        /* Memastikan di dark mode pun baris aktif tetap putih teksnya */
+        .dark .row-today td,
+        .dark .row-today td span {
+            color: #ffffff !important;
+        }
 
-        .sticky-th { position: sticky; top: 0; z-index: 10; background-color: #ffffff; border-bottom: 1px solid #000; }
-        .dark .sticky-th { background-color: #1e293b; border-bottom: 1px solid #fff; }
+        .sticky-th { position: sticky; top: 0; z-index: 10; background-color: #ffffff; border-bottom: 2px solid #000; }
+        .dark .sticky-th { background-color: #1e293b; border-bottom: 2px solid #fff; }
         
         .marquee-container { overflow: hidden; white-space: nowrap; display: flex; }
         .marquee-content { display: flex; flex-shrink: 0; min-width: 100%; align-items: center; }
 
-        /* Memaksa placeholder agar tidak terlalu samar */
-        input::placeholder { color: #1e293b !important; opacity: 1 !important; }
+        input::placeholder { color: #475569 !important; opacity: 1 !important; }
         .dark input::placeholder { color: #cbd5e1 !important; }
     </style>
 </head>
@@ -73,14 +79,14 @@
 
     <header class="bg-gradient-to-br from-emerald-600 to-emerald-900 pt-12 pb-24 px-6 rounded-b-[3rem] shadow-2xl">
         <div class="w-[90%] mx-auto text-center">
-            <span id="year-badge" class="inline-block px-8 py-3 rounded-full bg-white/20 text-white text-sm font-bold tracking-widest mb-4 uppercase">MEMUAT TAHUN...</span>
+            <span id="year-badge" class="inline-block px-8 py-3 rounded-full bg-white/20 text-white text-sm font-bold tracking-widest mb-4 uppercase">...</span>
             <h1 class="text-3xl md:text-4xl font-bold text-white mb-8">Jadwal Imsakiyah Kemenag RI</h1>
 
             <div class="flex items-center gap-2 max-w-lg mx-auto relative">
                 <div class="relative flex-1">
                     <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-800 w-5 h-5"></i>
                     <input type="text" id="search-input" placeholder="Cari Kota/Kabupaten..." 
-                        class="w-full pl-12 pr-4 py-4 rounded-2xl bg-white shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-black font-medium">
+                        class="w-full pl-12 pr-4 py-4 rounded-2xl bg-white shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-black font-bold">
                     <div id="results" class="absolute left-0 right-0 z-[100] mt-2 bg-white dark:bg-slate-800 rounded-2xl max-h-72 overflow-y-auto hidden shadow-2xl border border-slate-200 text-left text-black dark:text-white"></div>
                 </div>
                 <button onclick="toggleDarkMode()" class="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl border border-white/20 backdrop-blur-sm transition-all">
@@ -96,23 +102,23 @@
                 <i data-lucide="map-pin" class="w-10 h-10 text-emerald-600"></i>
             </div>
             <h2 class="text-xl font-bold mb-2">Pilih Lokasi Terlebih Dahulu</h2>
-            <p id="empty-state-text" class="text-black dark:text-white font-medium">Silakan cari kota Anda untuk melihat jadwal.</p>
+            <p class="text-black dark:text-white font-bold">Silakan cari kota Anda untuk melihat jadwal.</p>
         </div>
 
         <div id="main-ui" class="hidden space-y-6">
             <div class="glass-card rounded-3xl p-6 md:p-8 shadow-xl">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                     <div>
-                        <div class="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold mb-2">
+                        <div class="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-extrabold mb-2">
                             <i data-lucide="map-pin" class="w-4 h-4"></i>
                             <span id="city-name-display" class="tracking-widest uppercase text-sm">-</span>
                         </div>
-                        <h2 id="current-date-display" class="text-2xl font-bold mb-1">...</h2>
-                        <p id="hijri-display" class="text-black dark:text-white font-bold">Memuat info...</p>
+                        <h2 id="current-date-display" class="text-2xl font-black mb-1">...</h2>
+                        <p id="hijri-display" class="text-black dark:text-white font-bold">...</p>
                     </div>
                     <div class="bg-emerald-50 dark:bg-slate-900 border border-emerald-100 dark:border-slate-700 rounded-3xl p-6 text-center">
-                        <span id="label-status" class="text-xs font-bold tracking-widest text-emerald-700 dark:text-emerald-400 uppercase">Menghitung</span>
-                        <div id="timer" class="font-bold my-2 text-black dark:text-white">00:00:00</div>
+                        <span id="label-status" class="text-xs font-black tracking-widest text-emerald-700 dark:text-emerald-400 uppercase">Menghitung</span>
+                        <div id="timer" class="font-black my-2 text-black dark:text-white">00:00:00</div>
                         <div id="clock" class="text-lg font-bold text-black dark:text-white italic">--:--:--</div>
                     </div>
                 </div>
@@ -121,12 +127,12 @@
 
             <div class="glass-card rounded-3xl shadow-xl overflow-hidden">
                 <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                    <h3 id="table-title" class="font-bold text-black dark:text-white">Daftar Jadwal Ramadan</h3>
+                    <h3 id="table-title" class="font-black text-black dark:text-white">Daftar Jadwal Ramadan</h3>
                 </div>
                 <div class="overflow-x-auto max-h-[550px] overflow-y-auto" id="table-scroll-container">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="sticky-th text-[12px] text-black dark:text-white uppercase tracking-wider font-bold">
+                            <tr class="sticky-th text-[12px] text-black dark:text-white uppercase tracking-wider font-black">
                                 <th class="px-6 py-4 text-center">Ramadan</th>
                                 <th class="px-4 py-4 text-emerald-700 dark:text-emerald-400">Imsak</th>
                                 <th class="px-4 py-4">Subuh</th>
@@ -136,7 +142,7 @@
                                 <th class="px-4 py-4">Isya</th>
                             </tr>
                         </thead>
-                        <tbody id="table-body" class="divide-y divide-slate-200 dark:divide-slate-800 text-base"></tbody>
+                        <tbody id="table-body" class="divide-y divide-slate-200 dark:divide-slate-800 text-base font-bold"></tbody>
                     </table>
                 </div>
             </div>
@@ -211,9 +217,9 @@
                 results.innerHTML = match.map(k => {
                     const namaTampil = formatNamaKota(k.lokasi);
                     return `
-                    <div onclick="getRamadanJadwal('${k.id}', '${namaTampil}')" class="px-5 py-4 hover:bg-emerald-50 dark:hover:bg-slate-700/50 cursor-pointer flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0">
+                    <div onclick="getRamadanJadwal('${k.id}', '${namaTampil}')" class="px-5 py-4 hover:bg-emerald-50 dark:hover:bg-slate-700/50 cursor-pointer flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0 text-black dark:text-white">
                         <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i>
-                        <span class="font-bold text-black dark:text-white">${namaTampil}</span>
+                        <span class="font-bold">${namaTampil}</span>
                     </div>
                 `}).join('');
                 lucide.createIcons();
@@ -248,10 +254,8 @@
                     fetch(`https://api.myquran.com/v2/sholat/jadwal/${id}/${year}/${month.toString().padStart(2,'0')}`),
                     fetch(`https://api.myquran.com/v2/sholat/jadwal/${id}/${nextYear}/${nextMonth.toString().padStart(2,'0')}`)
                 ]);
-                
                 const jsonCurrent = await resCurrent.json();
                 const jsonNext = await resNext.json();
-
                 if(jsonCurrent.status && jsonNext.status) {
                     const combined = [...jsonCurrent.data.jadwal, ...jsonNext.data.jadwal];
                     const startIndex = combined.findIndex(d => d.date === CONFIG.startDate);
@@ -287,8 +291,8 @@
 
             grid.innerHTML = times.map(t => `
                 <div class="p-3 rounded-2xl border transition-all ${t.highlight ? 'bg-emerald-600 text-white shadow-lg' : 'bg-white dark:bg-slate-800 text-black dark:text-white border-slate-200 dark:border-slate-700'}">
-                    <p class="text-[10px] font-bold uppercase mb-1 text-center">${t.label}</p>
-                    <p class="font-bold text-base text-center">${t.time}</p>
+                    <p class="text-[10px] font-black uppercase mb-1 text-center">${t.label}</p>
+                    <p class="font-black text-base text-center">${t.time}</p>
                 </div>
             `).join('');
 
@@ -297,13 +301,13 @@
                 const tr = document.createElement('tr');
                 if(isToday) { tr.className = 'row-today'; tr.id = 'today-row'; }
                 tr.innerHTML = `
-                    <td class="px-6 py-4 text-center font-bold">Ke-${index + 1}</td>
-                    <td class="px-4 py-4 font-bold text-emerald-700 dark:text-emerald-400">${d.imsak}</td>
-                    <td class="px-4 py-4 font-bold text-black dark:text-white">${d.subuh}</td>
-                    <td class="px-4 py-4 font-bold text-black dark:text-white">${d.dzuhur}</td>
-                    <td class="px-4 py-4 font-bold text-black dark:text-white">${d.ashar}</td>
-                    <td class="px-4 py-4 font-bold text-emerald-700 dark:text-emerald-400">${d.maghrib}</td>
-                    <td class="px-4 py-4 font-bold text-black dark:text-white">${d.isya}</td>
+                    <td class="px-6 py-4 text-center">Ke-${index + 1}</td>
+                    <td class="px-4 py-4 text-emerald-700 dark:text-emerald-400">${d.imsak}</td>
+                    <td class="px-4 py-4">${d.subuh}</td>
+                    <td class="px-4 py-4">${d.dzuhur}</td>
+                    <td class="px-4 py-4">${d.ashar}</td>
+                    <td class="px-4 py-4 text-emerald-700 dark:text-emerald-400">${d.maghrib}</td>
+                    <td class="px-4 py-4">${d.isya}</td>
                 `;
                 table.appendChild(tr);
             });
