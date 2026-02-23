@@ -34,10 +34,19 @@
         #timer { font-size: 3.5rem !important; line-height: 1 !important; font-variant-numeric: tabular-nums; }
         .glass-card { background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.1); }
         .dark .glass-card { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Highlight baris hari ini */
         .row-today { background-color: #059669 !important; }
         .row-today td, .row-today td span, .row-today td i { color: #ffffff !important; font-weight: 800 !important; }
         .dark .row-today { background-color: #10b981 !important; }
         .dark .row-today td, .dark .row-today td span { color: #ffffff !important; }
+
+        /* Warna khusus kolom Imsak dan Maghrib di tabel */
+        .col-highlight { color: #059669 !important; font-weight: 800; }
+        .dark .col-highlight { color: #10b981 !important; }
+        /* Reset warna highlight jika barisnya adalah 'hari ini' agar kontras */
+        .row-today .col-highlight { color: #ffffff !important; }
+
         .sticky-th { position: sticky; top: 0; z-index: 10; background-color: #ffffff; border-bottom: 2px solid #000; }
         .dark .sticky-th { background-color: #1e293b; border-bottom: 2px solid #fff; }
         .marquee-container { overflow: hidden; white-space: nowrap; display: flex; }
@@ -120,7 +129,8 @@
                             <div id="clock" class="text-lg font-bold text-slate-600 dark:text-slate-400 italic">--:--:--</div>
                         </div>
                     </div>
-                    <div id="grid-times" class="grid grid-cols-3 md:grid-cols-6 gap-3 mt-10"></div>
+                    
+                    <div id="grid-times" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-10"></div>
                 </div>
 
                 <div class="glass-card rounded-3xl shadow-xl overflow-hidden">
@@ -134,8 +144,8 @@
                                     <th class="px-6 py-4 text-center">Ramadan</th>
                                     <th class="px-4 py-4 text-emerald-700 dark:text-emerald-400">Imsak</th>
                                     <th class="px-4 py-4">Subuh</th>
-                                    <th class="px-4 py-4">Zuhur</th>
-                                    <th class="px-4 py-4">Asar</th>
+                                    <th class="px-4 py-4">Dzuhur</th>
+                                    <th class="px-4 py-4">Ashar</th>
                                     <th class="px-4 py-4 text-emerald-700 dark:text-emerald-400">Maghrib</th>
                                     <th class="px-4 py-4">Isya</th>
                                 </tr>
@@ -198,7 +208,11 @@
         let kotaList = [];
         let jadwalRamadan = [];
         let currentOffset = 7; 
-        const CONFIG = { hijriYear: "1447 H", startDate: "2026-02-19" };
+        
+        const CONFIG = { 
+            hijriYear: "1447 H", // Ganti ini (misal: "1448 H"
+            startDate: "2026-02-19" // Ganti ini sesuai tanggal 1 Ramadan tahun tersebut
+        };
 
         function formatNamaKota(nama) {
             let n = nama.toUpperCase();
@@ -295,23 +309,48 @@
             document.getElementById('current-date-display').innerText = cityNow.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
             
             const currentJadwalToday = list.find(d => d.date === todayStr) || list[0];
+            
             const times = [
-                {label: 'Imsak', time: currentJadwalToday.imsak, highlight: true},
-                {label: 'Subuh', time: currentJadwalToday.subuh},
-                {label: 'Zuhur', time: currentJadwalToday.dzuhur},
-                {label: 'Asar', time: currentJadwalToday.ashar},
-                {label: 'Maghrib', time: currentJadwalToday.maghrib, highlight: true},
-                {label: 'Isya', time: currentJadwalToday.isya}
+                {label: 'Imsak', time: currentJadwalToday.imsak, icon: 'moon', color: 'emerald'},
+                {label: 'Subuh', time: currentJadwalToday.subuh, icon: 'sunrise', color: 'slate'},
+                {label: 'Dzuhur', time: currentJadwalToday.dzuhur, icon: 'sun-medium', color: 'slate'},
+                {label: 'Ashar', time: currentJadwalToday.ashar, icon: 'sun', color: 'slate'},
+                {label: 'Maghrib', time: currentJadwalToday.maghrib, icon: 'sunset', color: 'emerald'},
+                {label: 'Isya', time: currentJadwalToday.isya, icon: 'moon-star', color: 'slate'}
             ];
 
-            grid.innerHTML = times.map(t => `<div class="p-3 rounded-2xl border transition-all ${t.highlight ? 'bg-emerald-600 text-white shadow-lg font-black' : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700'}">
-                    <p class="text-[10px] uppercase mb-1 text-center font-black opacity-80">${t.label}</p><p class="text-base text-center font-black">${t.time}</p></div>`).join('');
+            grid.innerHTML = times.map(t => {
+                const isEmerald = t.color === 'emerald';
+                return `
+                    <div class="group p-4 rounded-3xl border transition-all duration-300 transform hover:-translate-y-1 ${isEmerald ? 'bg-emerald-600 border-emerald-500 shadow-lg shadow-emerald-200 dark:shadow-none' : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm'}">
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="p-2 rounded-xl ${isEmerald ? 'bg-white/20 text-white' : 'bg-slate-50 dark:bg-slate-700 text-emerald-600'}">
+                                <i data-lucide="${t.icon}" class="w-5 h-5"></i>
+                            </div>
+                            <p class="text-[10px] uppercase tracking-widest font-black ${isEmerald ? 'text-emerald-100' : 'text-slate-400 dark:text-slate-500'}">${t.label}</p>
+                            <p class="text-xl font-black ${isEmerald ? 'text-white' : 'text-slate-900 dark:text-white'}">${t.time}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
             
             list.forEach((d, index) => {
                 const isToday = d.date === todayStr;
                 const tr = document.createElement('tr');
                 if(isToday) { tr.className = 'row-today'; tr.id = 'today-row'; }
-                tr.innerHTML = `<td class="px-6 py-4 text-center">Ke-${index + 1}</td><td class="px-4 py-4">${d.imsak}</td><td class="px-4 py-4">${d.subuh}</td><td class="px-4 py-4">${d.dzuhur}</td><td class="px-4 py-4">${d.ashar}</td><td class="px-4 py-4">${d.maghrib}</td><td class="px-4 py-4">${d.isya}</td>`;
+                
+                // Menambahkan class 'col-highlight' pada kolom Imsak (index 1) dan Maghrib (index 5)
+                tr.innerHTML = `
+                    <td class="px-6 py-4 text-center">Ke-${index + 1}</td>
+                    <td class="px-4 py-4 col-highlight">${d.imsak}</td>
+                    <td class="px-4 py-4">${d.subuh}</td>
+                    <td class="px-4 py-4">${d.dzuhur}</td>
+                    <td class="px-4 py-4">${d.ashar}</td>
+                    <td class="px-4 py-4 col-highlight">${d.maghrib}</td>
+                    <td class="px-4 py-4">${d.isya}</td>
+                `;
                 table.appendChild(tr);
             });
 
