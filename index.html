@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;800&display=swap" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -19,184 +19,204 @@
                 extend: {
                     fontFamily: { sans: ['Lexend', 'sans-serif'] },
                     colors: {
-                        emerald: { 50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981', 600: '#059669', 700: '#047857', 900: '#064e3b' }
-                    },
-                    animation: { 'marquee': 'marquee 15s linear infinite' },
-                    keyframes: { marquee: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } } }
+                        emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669' }
+                    }
                 }
             }
         }
     </script>
     <style>
-        * { font-family: 'Lexend', sans-serif !important; }
-        body { color: #000000; }
-        .dark body { color: #ffffff; }
-        #timer { font-size: 3.5rem !important; line-height: 1 !important; font-variant-numeric: tabular-nums; }
-        .glass-card { background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.1); }
-        .dark .glass-card { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); }
+        * { 
+            font-family: 'Lexend', sans-serif !important; 
+            font-size: 17px; 
+        }
         
-        /* Highlight baris hari ini */
-        .row-today { background-color: #059669 !important; }
-        .row-today td, .row-today td span, .row-today td i { color: #ffffff !important; font-weight: 800 !important; }
-        .dark .row-today { background-color: #10b981 !important; }
-        .dark .row-today td, .dark .row-today td span { color: #ffffff !important; }
+        body { background-color: #0f172a; color: #ffffff; line-height: 1.5; overflow-x: hidden; }
 
-        /* Warna khusus kolom Imsak dan Maghrib di tabel */
-        .col-highlight { color: #059669 !important; font-weight: 800; }
-        .dark .col-highlight { color: #10b981 !important; }
-        /* Reset warna highlight jika barisnya adalah 'hari ini' agar kontras */
+        .border-thin { border: 1px solid #334155; }
+        .divider-neutral { border-color: #334155; }
+
+        #timer { 
+            font-variant-numeric: tabular-nums; 
+            font-weight: 800; 
+            letter-spacing: -2px; 
+            color: #ffffff; 
+            font-size: 3.5rem; 
+            line-height: 1;
+            margin: 10px 0;
+        }
+        
+        .row-today { background-color: #10b981 !important; }
+        .row-today td { color: #ffffff !important; font-weight: 600 !important; }
+
+        .col-highlight { color: #34d399; font-weight: 700; }
         .row-today .col-highlight { color: #ffffff !important; }
 
-        .sticky-th { position: sticky; top: 0; z-index: 10; background-color: #ffffff; border-bottom: 2px solid #000; }
-        .dark .sticky-th { background-color: #1e293b; border-bottom: 2px solid #fff; }
-        .marquee-container { overflow: hidden; white-space: nowrap; display: flex; }
-        .marquee-content { display: flex; flex-shrink: 0; min-width: 100%; align-items: center; }
-        input::placeholder { color: #64748b !important; opacity: 1 !important; font-weight: 500; }
-        #search-input { color: #000000 !important; }
+        .sticky-th { position: sticky; top: 0; z-index: 30; background: #1e293b; border-bottom: 2px solid #475569; }
 
-        #results::-webkit-scrollbar, 
-        #table-scroll-container::-webkit-scrollbar { width: 6px; }
-        #results::-webkit-scrollbar-track, 
-        #table-scroll-container::-webkit-scrollbar-track { background: transparent; }
-        #results::-webkit-scrollbar-thumb, 
-        #table-scroll-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .dark #results::-webkit-scrollbar-thumb, 
-        .dark #table-scroll-container::-webkit-scrollbar-thumb { background: #475569; }
-        #results, #table-scroll-container { scrollbar-width: thin; scrollbar-color: #475569 transparent; }
+        #label-status { font-size: 16px !important; display: block; }
+        #clock { font-size: 22px !important; display: block; }
+        .text-xs-custom { font-size: 11px !important; }
+
+        input { transition: all 0.2s ease; font-size: 16px !important; }
+        
+        .marquee-container { overflow: hidden; white-space: nowrap; display: flex; background: #064e3b; color: #fff; padding: 8px 0; border-bottom: 1px solid #065f46; }
+        .marquee-container span { font-size: 14px !important; }
+        .animate-marquee { display: inline-block; animation: marquee 25s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        th { font-size: 12px !important; text-transform: uppercase; letter-spacing: 0.1em; color: #cbd5e1; }
+
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 min-h-screen pb-10 transition-colors duration-300">
+<body class="transition-colors duration-200">
 
-    <div id="m-screen" class="fixed inset-0 z-[9999] bg-white dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center hidden">
-        <div class="w-24 h-24 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mb-6">
-            <i data-lucide="wrench" class="w-12 h-12 text-amber-600"></i>
-        </div>
-        <h1 class="text-3xl font-black mb-4">Pemeliharaan Sistem</h1>
-        <p id="m-text" class="text-slate-600 dark:text-slate-400 max-w-md mb-6 font-medium"></p>
-        <div class="px-6 py-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-sm font-bold">
-            Estimasi Selesai: <span id="m-eta" class="text-emerald-600"></span>
+    <div id="m-screen" class="fixed inset-0 z-[9999] bg-slate-950 flex flex-col items-center justify-center p-6 text-center hidden fade-in">
+        <div class="bg-slate-900 p-10 rounded-3xl border-thin shadow-2xl max-w-lg">
+            <i data-lucide="cog" class="w-16 h-16 text-emerald-400 mx-auto mb-6 animate-spin-slow" style="animation: spin 4s linear infinite;"></i>
+            <h1 class="font-bold mb-2 uppercase tracking-tighter text-white" style="font-size: 32px !important;">Maintenance</h1>
+            <p id="m-text" class="text-slate-300 mb-6 font-medium leading-relaxed"></p>
+            <div class="inline-block px-6 py-2 bg-slate-800 rounded-full border border-slate-700">
+                <span id="m-eta" class="font-mono text-emerald-400 font-bold uppercase tracking-wider text-sm"></span>
+            </div>
         </div>
     </div>
 
     <div id="main-app">
-        <div class="bg-emerald-900 text-white py-2 marquee-container border-b border-emerald-700">
-            <div class="marquee-content animate-marquee" id="marquee-1"></div>
-            <div class="marquee-content animate-marquee" id="marquee-2"></div>
+        <div class="marquee-container">
+            <div class="animate-marquee" id="marquee-1"></div>
+            <div class="animate-marquee" id="marquee-2"></div>
         </div>
 
-        <header class="bg-gradient-to-br from-emerald-600 to-emerald-900 pt-12 pb-24 px-6 rounded-b-[3rem] shadow-2xl">
-            <div class="w-[90%] mx-auto text-center">
-                <span id="year-badge" class="inline-block px-8 py-3 rounded-full bg-white/20 text-white text-sm font-bold tracking-widest mb-4 uppercase">...</span>
-                <h1 class="text-3xl md:text-4xl font-bold text-white mb-8">Jadwal Imsakiyah Kemenag RI</h1>
-
-                <div class="flex items-center gap-2 max-w-lg mx-auto relative">
-                    <div class="relative flex-1">
-                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"></i>
-                        <input type="text" id="search-input" placeholder="Cari Kota/Kabupaten..." 
-                            class="w-full pl-12 pr-4 py-4 rounded-2xl bg-white shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold">
-                        <div id="results" class="absolute left-0 right-0 z-[100] mt-2 bg-white dark:bg-slate-800 rounded-2xl max-h-72 overflow-y-auto hidden shadow-2xl border border-slate-200 dark:border-slate-700 text-left text-black dark:text-white"></div>
+        <header class="max-w-7xl mx-auto pt-10 pb-6 px-6">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <div id="year-badge" class="text-emerald-400 font-extrabold tracking-widest uppercase mb-1 text-xs-custom">...</div>
+                    <h1 class="font-extrabold tracking-tight text-white" style="font-size: 32px !important;">Jadwal Imsakiyah</h1>
+                </div>
+                
+                <div class="relative flex items-center gap-2">
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4"></i>
+                        <input type="text" id="search-input" placeholder="Cari Kota..." 
+                            class="pl-10 pr-4 py-2 w-72 rounded-lg border-thin bg-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-white placeholder-slate-500">
+                        <div id="results" class="absolute left-0 right-0 z-[100] mt-1 bg-slate-800 rounded-lg shadow-xl border-thin hidden overflow-hidden"></div>
                     </div>
-                    <button onclick="toggleDarkMode()" class="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl border border-white/20 backdrop-blur-sm transition-all">
-                        <i id="theme-icon" data-lucide="sun-moon" class="w-6 h-6"></i>
-                    </button>
                 </div>
             </div>
         </header>
 
-        <main class="w-[90%] mx-auto -mt-12 px-2 relative z-10 mb-12">
-            <div id="empty-state" class="glass-card rounded-3xl p-12 text-center shadow-xl">
-                <div class="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i data-lucide="map-pin" class="w-10 h-10 text-emerald-600"></i>
-                </div>
-                <h2 class="text-xl font-bold mb-2">Pilih Lokasi Terlebih Dahulu</h2>
-                <p class="text-slate-500 dark:text-slate-400 font-medium">Silakan cari kota Anda untuk melihat jadwal.</p>
+        <main class="max-w-7xl mx-auto px-6 mb-20">
+            <div id="empty-state" class="py-20 border-2 border-dashed border-slate-700 rounded-3xl text-center">
+                <i data-lucide="map-pin" class="w-10 h-10 text-slate-500 mx-auto mb-4"></i>
+                <p class="text-white font-semibold italic">Silakan pilih lokasi untuk memuat jadwal Ramadan.</p>
             </div>
 
-            <div id="main-ui" class="hidden space-y-6">
-                <div class="glass-card rounded-3xl p-6 md:p-8 shadow-xl">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                        <div>
-                            <div class="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-extrabold mb-2">
-                                <i data-lucide="map-pin" class="w-4 h-4"></i>
-                                <span id="city-name-display" class="tracking-widest uppercase text-sm">-</span>
-                            </div>
-                            <h2 id="current-date-display" class="text-2xl font-black mb-1">...</h2>
-                            <p id="hijri-display" class="text-slate-500 dark:text-slate-400 font-bold">...</p>
+            <div id="main-ui" class="hidden space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 py-8 border-y divider-neutral">
+                    <div>
+                        <div class="flex items-center gap-2 text-emerald-400 font-bold uppercase tracking-widest mb-2 text-xs-custom">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span id="city-name-display" style="font-size: 16px !important;">-</span>
                         </div>
-                        <div class="bg-emerald-50 dark:bg-slate-900 border border-emerald-100 dark:border-slate-700 rounded-3xl p-6 text-center">
-                            <span id="label-status" class="text-xs font-black tracking-widest text-emerald-700 dark:text-emerald-400 uppercase">Menghitung</span>
-                            <div id="timer" class="font-black my-2 text-slate-900 dark:text-white">00:00:00</div>
-                            <div id="clock" class="text-lg font-bold text-slate-600 dark:text-slate-400 italic">--:--:--</div>
-                        </div>
+                        <h2 id="current-date-display" class="font-extrabold mb-1 tracking-tight text-white" style="font-size: 36px !important;">...</h2>
+                        <p id="hijri-display" class="text-emerald-100 font-medium italic" style="font-size: 18px !important;">...</p>
                     </div>
-                    
-                    <div id="grid-times" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-10"></div>
+                    <div class="lg:text-right flex flex-col lg:items-end justify-center">
+                        <span id="label-status" class="font-extrabold text-emerald-400 uppercase tracking-[0.2em] mb-1">Menghitung...</span>
+                        <div id="timer">00:00:00</div>
+                        <div id="clock" class="font-mono text-white uppercase tracking-widest border-t divider-neutral pt-2 font-bold">--:--:--</div>
+                    </div>
                 </div>
 
-                <div class="glass-card rounded-3xl shadow-xl overflow-hidden">
-                    <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                        <h3 id="table-title" class="font-black text-slate-900 dark:text-white">Daftar Jadwal Ramadan</h3>
+                <div id="grid-times" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4"></div>
+
+                <div class="space-y-6">
+                    <div class="border-thin rounded-2xl overflow-hidden shadow-sm">
+                        <div class="overflow-x-auto max-h-[600px]" id="table-scroll-container">
+                            <table class="w-full text-left">
+                                <thead class="sticky-th">
+                                    <tr class="text-white">
+                                        <th class="px-6 py-4">Hari</th>
+                                        <th class="px-4 py-4">Imsak</th>
+                                        <th class="px-4 py-4">Subuh</th>
+                                        <th class="px-4 py-4">Dzuhur</th>
+                                        <th class="px-4 py-4">Ashar</th>
+                                        <th class="px-4 py-4">Maghrib</th>
+                                        <th class="px-4 py-4">Isya</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body" class="divide-y divider-neutral text-white"></tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="overflow-x-auto max-h-[550px] overflow-y-auto" id="table-scroll-container">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="sticky-th text-[12px] text-slate-900 dark:text-white uppercase tracking-wider font-black">
-                                    <th class="px-6 py-4 text-center">Ramadan</th>
-                                    <th class="px-4 py-4 text-emerald-700 dark:text-emerald-400">Imsak</th>
-                                    <th class="px-4 py-4">Subuh</th>
-                                    <th class="px-4 py-4">Dzuhur</th>
-                                    <th class="px-4 py-4">Ashar</th>
-                                    <th class="px-4 py-4 text-emerald-700 dark:text-emerald-400">Maghrib</th>
-                                    <th class="px-4 py-4">Isya</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-body" class="divide-y divide-slate-200 dark:divide-slate-800 text-base font-bold"></tbody>
-                        </table>
+
+                    <div class="bg-slate-900/50 p-8 rounded-3xl border-thin flex flex-col items-center text-center">
+                        <div class="flex items-center gap-2 text-emerald-400 mb-4">
+                            <i data-lucide="info" class="w-5 h-5"></i>
+                            <h4 class="font-bold uppercase tracking-[0.3em] text-xs-custom">Informasi Data</h4>
+                        </div>
+                        <p class="leading-relaxed max-w-2xl mb-8 font-medium" style="font-size: 15px !important;">
+                            Jadwal imsakiyah ini dihitung berdasarkan titik koordinat wilayah masing-masing menggunakan data dari 
+                            <span class="font-bold text-white underline decoration-emerald-500/40">Kementerian Agama Republik Indonesia (Bimas Islam)</span>. 
+                        </p>
+                        <div class="w-full max-w-xl border-t divider-neutral pt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="flex flex-col items-center gap-2">
+                                <div class="text-emerald-400 mb-1"><i data-lucide="calendar" class="w-6 h-6"></i></div>
+                                <h5 class="font-bold uppercase tracking-widest text-slate-400 text-xs-custom">Tahun Hijriah</h5>
+                                <p class="font-bold text-white">1447 H</p>
+                            </div>
+                            <div class="flex flex-col items-center gap-2">
+                                <div class="text-emerald-400 mb-1"><i data-lucide="shield-check" class="w-6 h-6"></i></div>
+                                <h5 class="font-bold uppercase tracking-widest text-slate-400 text-xs-custom">Akurasi</h5>
+                                <p class="font-bold text-white" style="font-size: 15px !important;">Real-time Location Sync</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
 
-        <footer class="w-[90%] mx-auto pb-12 text-center border-t border-slate-200 dark:border-slate-800 pt-8">
-            <div class="flex flex-col items-center gap-4">
-                <div class="flex items-center gap-2 text-slate-400 dark:text-slate-600">
-                    <i data-lucide="info" class="w-4 h-4"></i>
-                    <p class="text-xs font-medium uppercase tracking-widest">Informasi Data</p>
-                </div>
-                <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed max-w-md">
-                    Data jadwal imsakiyah ini bersumber dari <span class="font-bold text-emerald-600">Kementerian Agama Republik Indonesia</span> melalui sistem integrasi data Bimas Islam.
-                </p>
-                <div class="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] mt-2">
-                    <span>&copy; 2026</span>
-                    <span class="mx-2">•</span>
-                    <span>Ramadan Kareem</span>
-                </div>
-            </div>
+        <footer class="max-w-7xl mx-auto px-6 py-10 border-t divider-neutral flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="font-bold text-white uppercase tracking-[0.4em] text-xs-custom">Kemenag RI • RAMADAN 2026</p>
+            <p class="text-slate-500 font-bold uppercase tracking-tight text-xs-custom">Aplikasi ini dibuat untuk kemudahan akses jadwal ibadah.</p>
         </footer>
     </div>
 
     <script>
-        // --- LOGIKA MAINTENANCE ---
+        let isMaintenanceMode = false;
+        let clockInterval;
+
         function checkMaintenanceStatus() {
             const oldScript = document.getElementById('status-checker');
             if (oldScript) oldScript.remove();
-
+            
             const script = document.createElement('script');
             script.id = 'status-checker';
             script.src = `status.js?v=${new Date().getTime()}`;
+            
             script.onload = () => {
-                const screen = document.getElementById('m-screen');
-                const app = document.getElementById('main-app');
-                
+                const mScreen = document.getElementById('m-screen');
+                const mainApp = document.getElementById('main-app');
+
                 if (typeof maintenanceConfig !== 'undefined' && maintenanceConfig.isMaintenance) {
-                    screen.classList.remove('hidden');
-                    app.classList.add('hidden');
-                    document.getElementById('m-text').innerText = maintenanceConfig.message;
-                    document.getElementById('m-eta').innerText = maintenanceConfig.estimatedFinish;
-                    lucide.createIcons();
+                    if (!isMaintenanceMode) {
+                        isMaintenanceMode = true;
+                        mScreen.classList.remove('hidden');
+                        mainApp.classList.add('hidden');
+                        document.getElementById('m-text').innerText = maintenanceConfig.message;
+                        document.getElementById('m-eta').innerText = "Estimasi: " + maintenanceConfig.estimatedFinish;
+                        lucide.createIcons();
+                        if (clockInterval) clearInterval(clockInterval);
+                    }
                 } else {
-                    screen.classList.add('hidden');
-                    app.classList.remove('hidden');
+                    if (isMaintenanceMode) {
+                        isMaintenanceMode = false;
+                        window.location.reload(); // Refresh untuk memastikan state kembali bersih
+                    }
+                    mScreen.classList.add('hidden');
+                    mainApp.classList.remove('hidden');
                 }
             };
             document.head.appendChild(script);
@@ -204,35 +224,29 @@
 
         setInterval(checkMaintenanceStatus, 5000);
 
-        // --- LOGIKA APLIKASI ---
         let kotaList = [];
         let jadwalRamadan = [];
         let currentOffset = 7; 
-        
-        const CONFIG = { 
-            hijriYear: "1447 H", // Ganti ini (misal: "1448 H"
-            startDate: "2026-02-19" // Ganti ini sesuai tanggal 1 Ramadan tahun tersebut
-        };
+        const CONFIG = { hijriYear: "1447 H", startDate: "2026-02-19" };
 
         function formatNamaKota(nama) {
             let n = nama.toUpperCase();
-            if (n.includes("KOTA JAKARTA")) return n.replace("KOTA JAKARTA", "DKI JAKARTA");
-            return n;
+            return n.includes("KOTA JAKARTA") ? n.replace("KOTA JAKARTA", "DKI JAKARTA") : n;
         }
 
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        function getTzLabel(offset) {
+            if (offset === 7) return "WIB";
+            if (offset === 8) return "WITA";
+            if (offset === 9) return "WIT";
+            return "GMT+" + offset;
         }
 
         function setupUI() {
             const yearMasehi = new Date(CONFIG.startDate).getFullYear();
-            document.getElementById('year-badge').innerText = `RAMADAN ${CONFIG.hijriYear} / ${yearMasehi} M`;
-            document.getElementById('table-title').innerText = `Daftar Jadwal Ramadan ${CONFIG.hijriYear}`;
-            const marqueeHTML = `<span class="mx-2 text-sm italic font-bold">✨ Marhaban Ya Ramadan</span> <span class="mx-2 text-sm">|</span> <span class="mx-2 text-sm italic font-bold">🕌 Selamat Menunaikan Ibadah Puasa</span>`.repeat(5); 
+            document.getElementById('year-badge').innerText = `Ramadan ${CONFIG.hijriYear} / ${yearMasehi} M`;
+            const marqueeHTML = `<span class="mx-12 font-bold uppercase">Marhaban Ya Ramadan 1447 H</span> <span class="mx-12 font-bold uppercase italic text-emerald-200">Selamat Menunaikan Ibadah Puasa</span>`.repeat(5); 
             document.getElementById('marquee-1').innerHTML = marqueeHTML;
             document.getElementById('marquee-2').innerHTML = marqueeHTML;
-            if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
         }
 
         async function init() {
@@ -243,8 +257,11 @@
                 const res = await fetch('https://api.myquran.com/v2/sholat/kota/semua');
                 const json = await res.json();
                 kotaList = json.data;
-            } catch (e) { console.error("Gagal ambil daftar kota"); }
-            setInterval(updateClock, 1000);
+            } catch (e) { console.error("API Error"); }
+            
+            if (!isMaintenanceMode) {
+                clockInterval = setInterval(updateClock, 1000);
+            }
         }
 
         const input = document.getElementById('search-input');
@@ -253,15 +270,18 @@
         input.addEventListener('input', (e) => {
             let val = e.target.value.toLowerCase();
             if(val.length < 2) { results.classList.add('hidden'); return; }
-            const match = kotaList.filter(k => k.lokasi.toLowerCase().includes(val)).slice(0, 8);
+            const match = kotaList.filter(k => k.lokasi.toLowerCase().includes(val)).slice(0, 6);
             if(match.length > 0) {
                 results.innerHTML = match.map(k => {
                     const namaTampil = formatNamaKota(k.lokasi);
-                    return `<div onclick="getRamadanJadwal('${k.id}', '${namaTampil}')" class="px-5 py-4 hover:bg-emerald-50 dark:hover:bg-slate-700/50 cursor-pointer flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0 text-slate-900 dark:text-white">
-                        <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i><span class="font-bold">${namaTampil}</span></div>`
+                    return `
+                        <div onclick="getRamadanJadwal('${k.id}', '${namaTampil}')" class="px-6 py-4 hover:bg-slate-700 cursor-pointer font-bold border-b border-slate-800 last:border-0 text-white flex items-center gap-3">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-emerald-400"></i>
+                            <span>${namaTampil}</span>
+                        </div>`;
                 }).join('');
-                lucide.createIcons();
                 results.classList.remove('hidden');
+                lucide.createIcons();
             } else { results.classList.add('hidden'); }
         });
 
@@ -273,133 +293,89 @@
             document.getElementById('main-ui').classList.remove('hidden');
             
             const n = nama.toUpperCase();
-            if (n.match(/BALI|DENPASAR|MAKASSAR|MANADO|SAMARINDA|KUPANG|MATARAM|GORONTALO|BALIKPAPAN/)) currentOffset = 8; 
-            else if (n.match(/PAPUA|MALUKU|AMBON|JAYAPURA|SORONG|TERNATE/)) currentOffset = 9; 
-            else currentOffset = 7; 
+            currentOffset = n.match(/BALI|DENPASAR|MAKASSAR|MANADO|SAMARINDA|KUPANG|MATARAM|GORONTALO|BALIKPAPAN|PALU|KENDARI|BITUNG|BANJARMASIN|SAMARINDA|TARAKAN/) ? 8 : (n.match(/PAPUA|MALUKU|AMBON|JAYAPURA|SORONG|TERNATE|MANOKWARI|BIAK|MERAUKE/) ? 9 : 7);
 
             const startDate = new Date(CONFIG.startDate);
             try {
-                const [resCurrent, resNext] = await Promise.all([
+                const [res1, res2] = await Promise.all([
                     fetch(`https://api.myquran.com/v2/sholat/jadwal/${id}/${startDate.getFullYear()}/${(startDate.getMonth()+1).toString().padStart(2,'0')}`),
                     fetch(`https://api.myquran.com/v2/sholat/jadwal/${id}/${startDate.getFullYear()}/${(startDate.getMonth()+2).toString().padStart(2,'0')}`)
                 ]);
-                const jsonCurrent = await resCurrent.json();
-                const jsonNext = await resNext.json();
-                
-                if(jsonCurrent.status && jsonNext.status) {
-                    const combined = [...jsonCurrent.data.jadwal, ...jsonNext.data.jadwal];
-                    const startIndex = combined.findIndex(d => d.date === CONFIG.startDate);
-                    if (startIndex !== -1) { 
-                        jadwalRamadan = combined.slice(startIndex, startIndex + 30); 
+                const j1 = await res1.json(), j2 = await res2.json();
+                if(j1.status && j2.status) {
+                    const combined = [...j1.data.jadwal, ...j2.data.jadwal];
+                    const startIdx = combined.findIndex(d => d.date === CONFIG.startDate);
+                    if (startIdx !== -1) { 
+                        jadwalRamadan = combined.slice(startIdx, startIdx + 30); 
                         render(jadwalRamadan); 
                     }
                 }
-            } catch (e) { alert("Gagal memuat jadwal."); }
+            } catch (e) { alert("Error loading data."); }
         }
 
         function render(list) {
             const table = document.getElementById('table-body');
             const grid = document.getElementById('grid-times');
             table.innerHTML = '';
-            
             const nowUTC = new Date().getTime() + (new Date().getTimezoneOffset() * 60000);
             const cityNow = new Date(nowUTC + (3600000 * currentOffset));
             const todayStr = cityNow.toLocaleDateString('en-CA'); 
             
             document.getElementById('current-date-display').innerText = cityNow.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
-            
-            const currentJadwalToday = list.find(d => d.date === todayStr) || list[0];
+            const todayJadwal = list.find(d => d.date === todayStr) || list[0];
             
             const times = [
-                {label: 'Imsak', time: currentJadwalToday.imsak, icon: 'moon', color: 'emerald'},
-                {label: 'Subuh', time: currentJadwalToday.subuh, icon: 'sunrise', color: 'slate'},
-                {label: 'Dzuhur', time: currentJadwalToday.dzuhur, icon: 'sun-medium', color: 'slate'},
-                {label: 'Ashar', time: currentJadwalToday.ashar, icon: 'sun', color: 'slate'},
-                {label: 'Maghrib', time: currentJadwalToday.maghrib, icon: 'sunset', color: 'emerald'},
-                {label: 'Isya', time: currentJadwalToday.isya, icon: 'moon-star', color: 'slate'}
+                {l: 'Imsak', t: todayJadwal.imsak}, {l: 'Subuh', t: todayJadwal.subuh},
+                {l: 'Dzuhur', t: todayJadwal.dzuhur}, {l: 'Ashar', t: todayJadwal.ashar},
+                {l: 'Maghrib', t: todayJadwal.maghrib}, {l: 'Isya', t: todayJadwal.isya}
             ];
 
-            grid.innerHTML = times.map(t => {
-                const isEmerald = t.color === 'emerald';
-                return `
-                    <div class="group p-4 rounded-3xl border transition-all duration-300 transform hover:-translate-y-1 ${isEmerald ? 'bg-emerald-600 border-emerald-500 shadow-lg shadow-emerald-200 dark:shadow-none' : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm'}">
-                        <div class="flex flex-col items-center gap-2">
-                            <div class="p-2 rounded-xl ${isEmerald ? 'bg-white/20 text-white' : 'bg-slate-50 dark:bg-slate-700 text-emerald-600'}">
-                                <i data-lucide="${t.icon}" class="w-5 h-5"></i>
-                            </div>
-                            <p class="text-[10px] uppercase tracking-widest font-black ${isEmerald ? 'text-emerald-100' : 'text-slate-400 dark:text-slate-500'}">${t.label}</p>
-                            <p class="text-xl font-black ${isEmerald ? 'text-white' : 'text-slate-900 dark:text-white'}">${t.time}</p>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            lucide.createIcons();
+            grid.innerHTML = times.map(t => `
+                <div class="p-6 border-thin rounded-2xl bg-slate-900/50 hover:bg-slate-800 transition-all group">
+                    <p class="font-extrabold text-white group-hover:text-emerald-400 uppercase tracking-widest mb-2 transition-colors text-xs-custom">${t.l}</p>
+                    <p class="font-extrabold text-white" style="font-size: 24px !important;">${t.t}</p>
+                </div>
+            `).join('');
             
-            list.forEach((d, index) => {
-                const isToday = d.date === todayStr;
+            list.forEach((d, i) => {
+                const isT = d.date === todayStr;
                 const tr = document.createElement('tr');
-                if(isToday) { tr.className = 'row-today'; tr.id = 'today-row'; }
-                
-                // Menambahkan class 'col-highlight' pada kolom Imsak (index 1) dan Maghrib (index 5)
-                tr.innerHTML = `
-                    <td class="px-6 py-4 text-center">Ke-${index + 1}</td>
-                    <td class="px-4 py-4 col-highlight">${d.imsak}</td>
-                    <td class="px-4 py-4">${d.subuh}</td>
-                    <td class="px-4 py-4">${d.dzuhur}</td>
-                    <td class="px-4 py-4">${d.ashar}</td>
-                    <td class="px-4 py-4 col-highlight">${d.maghrib}</td>
-                    <td class="px-4 py-4">${d.isya}</td>
-                `;
+                if(isT) { tr.className = 'row-today'; tr.id = 'today-row'; }
+                tr.innerHTML = `<td class="px-6 py-4 font-mono text-white font-bold">${i + 1} Ramadan</td><td class="px-4 py-4 col-highlight">${d.imsak}</td><td class="px-4 py-4 font-medium text-white">${d.subuh}</td><td class="px-4 py-4 font-medium text-white">${d.dzuhur}</td><td class="px-4 py-4 font-medium text-white">${d.ashar}</td><td class="px-4 py-4 col-highlight">${d.maghrib}</td><td class="px-4 py-4 font-medium text-white">${d.isya}</td>`;
                 table.appendChild(tr);
             });
-
-            document.getElementById('hijri-display').innerText = currentJadwalToday.tanggal;
-            
-            setTimeout(() => { 
-                const row = document.getElementById('today-row'); 
-                if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-            }, 300);
+            document.getElementById('hijri-display').innerText = todayJadwal.tanggal;
+            setTimeout(() => { document.getElementById('today-row')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300);
+            lucide.createIcons();
         }
 
         function updateClock() {
+            if (isMaintenanceMode) return;
+
             const nowUTC = new Date().getTime() + (new Date().getTimezoneOffset() * 60000);
             const cityTime = new Date(nowUTC + (3600000 * currentOffset));
             const todayStr = cityTime.toLocaleDateString('en-CA');
-            const tzName = currentOffset === 7 ? "WIB" : currentOffset === 8 ? "WITA" : "WIT";
+            const timeString = cityTime.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', second:'2-digit', hour12: false}).replace(/\./g, ':');
             
-            const timeStr = cityTime.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', second:'2-digit', hour12: false}).replace(/\./g, ':');
-            document.getElementById('clock').innerText = `${timeStr} ${tzName}`;
-
-            if (!jadwalRamadan || jadwalRamadan.length === 0) return;
-
-            const todayJadwal = jadwalRamadan.find(d => d.date === todayStr);
-            const tomorrowTime = new Date(cityTime.getTime() + 86400000);
-            const tomorrowJadwal = jadwalRamadan.find(d => d.date === tomorrowTime.toLocaleDateString('en-CA'));
+            document.getElementById('clock').innerText = `${timeString} ${getTzLabel(currentOffset)}`;
             
-            const parseToDate = (dateStr, timeStr) => { 
-                const [h, m] = timeStr.split(':'); 
-                const d = new Date(dateStr); 
-                d.setHours(parseInt(h), parseInt(m), 0, 0); 
-                return d; 
-            };
-
+            if (jadwalRamadan.length === 0) return;
+            const today = jadwalRamadan.find(d => d.date === todayStr);
+            const tomorrow = jadwalRamadan.find(d => d.date === new Date(cityTime.getTime() + 86400000).toLocaleDateString('en-CA'));
+            const parse = (ds, ts) => { const [h, m] = ts.split(':'); const d = new Date(ds); d.setHours(h, m, 0, 0); return d; };
             let target = null, status = "";
-            if (todayJadwal) {
-                const imsakToday = parseToDate(todayJadwal.date, todayJadwal.imsak);
-                const maghribToday = parseToDate(todayJadwal.date, todayJadwal.maghrib);
-                
-                if (cityTime < imsakToday) { target = imsakToday; status = "Menuju Imsak"; }
-                else if (cityTime < maghribToday) { target = maghribToday; status = "Menuju Buka Puasa"; }
-                else if (tomorrowJadwal) { target = parseToDate(tomorrowJadwal.date, tomorrowJadwal.imsak); status = "Menuju Imsak Besok"; }
+            if (today) {
+                const imsak = parse(today.date, today.imsak), maghrib = parse(today.date, today.maghrib);
+                if (cityTime < imsak) { target = imsak; status = "Imsak"; }
+                else if (cityTime < maghrib) { target = maghrib; status = "Buka Puasa"; }
+                else if (tomorrow) { target = parse(tomorrow.date, tomorrow.imsak); status = "Imsak Besok"; }
             }
-
             if (target) {
                 const diff = target - cityTime;
                 const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
                 const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
                 const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-                document.getElementById('label-status').innerText = status;
+                document.getElementById('label-status').innerText = "Menuju " + status;
                 document.getElementById('timer').innerText = `${h}:${m}:${s}`;
             }
         }
