@@ -21,10 +21,7 @@
                     colors: {
                         emerald: { 50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981', 600: '#059669', 700: '#047857', 900: '#064e3b' }
                     },
-                    animation: { 
-                        'marquee': 'marquee 15s linear infinite',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                    },
+                    animation: { 'marquee': 'marquee 15s linear infinite' },
                     keyframes: { marquee: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } } }
                 }
             }
@@ -32,70 +29,47 @@
     </script>
     <style>
         * { font-family: 'Lexend', sans-serif !important; }
-        
         body { color: #000000; }
         .dark body { color: #ffffff; }
-
         #timer { font-size: 3.5rem !important; line-height: 1 !important; font-variant-numeric: tabular-nums; }
-        
         .glass-card { background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.1); }
         .dark .glass-card { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); }
-        
         .row-today { background-color: #059669 !important; }
         .row-today td, .row-today td span, .row-today td i { color: #ffffff !important; font-weight: 800 !important; }
-
         .dark .row-today { background-color: #10b981 !important; }
         .dark .row-today td, .dark .row-today td span { color: #ffffff !important; }
-
         .sticky-th { position: sticky; top: 0; z-index: 10; background-color: #ffffff; border-bottom: 2px solid #000; }
         .dark .sticky-th { background-color: #1e293b; border-bottom: 2px solid #fff; }
-        
         .marquee-container { overflow: hidden; white-space: nowrap; display: flex; }
         .marquee-content { display: flex; flex-shrink: 0; min-width: 100%; align-items: center; }
-
         input::placeholder { color: #64748b !important; opacity: 1 !important; font-weight: 500; }
         #search-input { color: #000000 !important; }
 
         #results::-webkit-scrollbar, 
-        #table-scroll-container::-webkit-scrollbar {
-            width: 6px;
-        }
+        #table-scroll-container::-webkit-scrollbar { width: 6px; }
         #results::-webkit-scrollbar-track, 
-        #table-scroll-container::-webkit-scrollbar-track {
-            background: transparent;
-        }
+        #table-scroll-container::-webkit-scrollbar-track { background: transparent; }
         #results::-webkit-scrollbar-thumb, 
-        #table-scroll-container::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
+        #table-scroll-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .dark #results::-webkit-scrollbar-thumb, 
-        .dark #table-scroll-container::-webkit-scrollbar-thumb {
-            background: #475569;
-        }
-        #results, #table-scroll-container {
-            scrollbar-width: thin;
-            scrollbar-color: #475569 transparent;
-        }
+        .dark #table-scroll-container::-webkit-scrollbar-thumb { background: #475569; }
+        #results, #table-scroll-container { scrollbar-width: thin; scrollbar-color: #475569 transparent; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 min-h-screen pb-10 transition-colors duration-300">
 
-    <div id="maintenance-ui" class="hidden fixed inset-0 z-[200] bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
-        <div class="w-24 h-24 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mb-8 animate-pulse-slow">
+    <div id="m-screen" class="fixed inset-0 z-[9999] bg-white dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center hidden">
+        <div class="w-24 h-24 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mb-6">
             <i data-lucide="wrench" class="w-12 h-12 text-amber-600"></i>
         </div>
-        <h1 class="text-3xl font-black text-slate-900 dark:text-white mb-4">Pemeliharaan Sistem</h1>
-        <p class="text-slate-600 dark:text-slate-400 max-w-md leading-relaxed mb-8">
-            Mohon maaf, saat ini kami sedang melakukan pembaruan data untuk memastikan jadwal Imsakiyah tetap akurat. Silakan kembali beberapa saat lagi.
-        </p>
-        <div class="flex items-center gap-2 px-6 py-3 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-sm font-bold">
-            <i data-lucide="info" class="w-4 h-4"></i>
-            Estimasi selesai: Segera
+        <h1 class="text-3xl font-black mb-4">Pemeliharaan Sistem</h1>
+        <p id="m-text" class="text-slate-600 dark:text-slate-400 max-w-md mb-6 font-medium"></p>
+        <div class="px-6 py-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-sm font-bold">
+            Estimasi Selesai: <span id="m-eta" class="text-emerald-600"></span>
         </div>
     </div>
 
-    <div id="app-content">
+    <div id="main-app">
         <div class="bg-emerald-900 text-white py-2 marquee-container border-b border-emerald-700">
             <div class="marquee-content animate-marquee" id="marquee-1"></div>
             <div class="marquee-content animate-marquee" id="marquee-2"></div>
@@ -192,14 +166,38 @@
     </div>
 
     <script>
-        // --- PENGATURAN MAINTENANCE ---
-        // Ubah ke true untuk mengaktifkan mode pemeliharaan
-        const isMaintenance = false; 
+        // --- LOGIKA MAINTENANCE ---
+        function checkMaintenanceStatus() {
+            const oldScript = document.getElementById('status-checker');
+            if (oldScript) oldScript.remove();
 
+            const script = document.createElement('script');
+            script.id = 'status-checker';
+            script.src = `status.js?v=${new Date().getTime()}`;
+            script.onload = () => {
+                const screen = document.getElementById('m-screen');
+                const app = document.getElementById('main-app');
+                
+                if (typeof maintenanceConfig !== 'undefined' && maintenanceConfig.isMaintenance) {
+                    screen.classList.remove('hidden');
+                    app.classList.add('hidden');
+                    document.getElementById('m-text').innerText = maintenanceConfig.message;
+                    document.getElementById('m-eta').innerText = maintenanceConfig.estimatedFinish;
+                    lucide.createIcons();
+                } else {
+                    screen.classList.add('hidden');
+                    app.classList.remove('hidden');
+                }
+            };
+            document.head.appendChild(script);
+        }
+
+        setInterval(checkMaintenanceStatus, 5000);
+
+        // --- LOGIKA APLIKASI ---
         let kotaList = [];
         let jadwalRamadan = [];
         let currentOffset = 7; 
-        
         const CONFIG = { hijriYear: "1447 H", startDate: "2026-02-19" };
 
         function formatNamaKota(nama) {
@@ -214,14 +212,6 @@
         }
 
         function setupUI() {
-            // Cek Mode Maintenance
-            if (isMaintenance) {
-                document.getElementById('app-content').classList.add('hidden');
-                document.getElementById('maintenance-ui').classList.remove('hidden');
-                lucide.createIcons();
-                return;
-            }
-
             const yearMasehi = new Date(CONFIG.startDate).getFullYear();
             document.getElementById('year-badge').innerText = `RAMADAN ${CONFIG.hijriYear} / ${yearMasehi} M`;
             document.getElementById('table-title').innerText = `Daftar Jadwal Ramadan ${CONFIG.hijriYear}`;
@@ -229,13 +219,12 @@
             document.getElementById('marquee-1').innerHTML = marqueeHTML;
             document.getElementById('marquee-2').innerHTML = marqueeHTML;
             if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
-            lucide.createIcons();
         }
 
         async function init() {
+            checkMaintenanceStatus();
             setupUI();
-            if (isMaintenance) return; // Hentikan inisialisasi jika maintenance
-
+            lucide.createIcons();
             try {
                 const res = await fetch('https://api.myquran.com/v2/sholat/kota/semua');
                 const json = await res.json();
@@ -247,22 +236,20 @@
         const input = document.getElementById('search-input');
         const results = document.getElementById('results');
 
-        if (input) {
-            input.addEventListener('input', (e) => {
-                let val = e.target.value.toLowerCase();
-                if(val.length < 2) { results.classList.add('hidden'); return; }
-                const match = kotaList.filter(k => k.lokasi.toLowerCase().includes(val)).slice(0, 8);
-                if(match.length > 0) {
-                    results.innerHTML = match.map(k => {
-                        const namaTampil = formatNamaKota(k.lokasi);
-                        return `<div onclick="getRamadanJadwal('${k.id}', '${namaTampil}')" class="px-5 py-4 hover:bg-emerald-50 dark:hover:bg-slate-700/50 cursor-pointer flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0 text-slate-900 dark:text-white">
-                            <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i><span class="font-bold">${namaTampil}</span></div>`
-                    }).join('');
-                    lucide.createIcons();
-                    results.classList.remove('hidden');
-                } else { results.classList.add('hidden'); }
-            });
-        }
+        input.addEventListener('input', (e) => {
+            let val = e.target.value.toLowerCase();
+            if(val.length < 2) { results.classList.add('hidden'); return; }
+            const match = kotaList.filter(k => k.lokasi.toLowerCase().includes(val)).slice(0, 8);
+            if(match.length > 0) {
+                results.innerHTML = match.map(k => {
+                    const namaTampil = formatNamaKota(k.lokasi);
+                    return `<div onclick="getRamadanJadwal('${k.id}', '${namaTampil}')" class="px-5 py-4 hover:bg-emerald-50 dark:hover:bg-slate-700/50 cursor-pointer flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0 text-slate-900 dark:text-white">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i><span class="font-bold">${namaTampil}</span></div>`
+                }).join('');
+                lucide.createIcons();
+                results.classList.remove('hidden');
+            } else { results.classList.add('hidden'); }
+        });
 
         async function getRamadanJadwal(id, nama) {
             input.value = '';
