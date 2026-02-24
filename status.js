@@ -1,6 +1,9 @@
 // status.js
 var maintenanceConfig = {
-    isMaintenance: false, // Ubah ke true untuk mengunci web
-    message: "Kami sedang melakukan pembaruan sistem untuk kenyamanan Anda.",
-    estimatedFinish: "24 Februari 2026, 10:00 WIB"
+    isMaintenance: true, 
+    maintenanceMessage: "Kami sedang melakukan pembaruan rutin aplikasi untuk meningkatkan kecepatan akses jadwal. Mohon tunggu sebentar!",
+    maintenanceETA: "Aplikasi akan kembali aktif", 
+    
+    isClosed: false,      
+    closedMessage: "Aplikasi Jadwal Imsakiyah Ramadan 1447 H telah resmi ditutup. Terima kasih, sampai jumpa di Ramadan tahun depan!",
 };
