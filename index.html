@@ -26,22 +26,25 @@
         }
     </script>
     <style>
-        * { 
-            font-family: 'Lexend', sans-serif !important; 
-            font-size: 17px; 
+        :root { 
+            --status-red: #ef4444; 
+            --status-amber: #f59e0b;
         }
+        /* Perbaikan: Font size tidak dipaksa 17px di HP agar tidak berantakan */
+        * { font-family: 'Lexend', sans-serif !important; }
         
-        body { background-color: #0f172a; color: #ffffff; line-height: 1.5; overflow-x: hidden; }
+        body { background-color: #0f172a; color: #ffffff; line-height: 1.5; overflow-x: hidden; font-size: 16px; }
 
         .border-thin { border: 1px solid #334155; }
         .divider-neutral { border-color: #334155; }
 
+        /* Perbaikan: Timer adaptif agar tidak terpotong di HP layar kecil */
         #timer { 
             font-variant-numeric: tabular-nums; 
             font-weight: 800; 
-            letter-spacing: -2px; 
+            letter-spacing: -1px; 
             color: #ffffff; 
-            font-size: 3.5rem; 
+            font-size: clamp(2.5rem, 8vw, 3.5rem); 
             line-height: 1;
             margin: 10px 0;
         }
@@ -54,32 +57,66 @@
 
         .sticky-th { position: sticky; top: 0; z-index: 30; background: #1e293b; border-bottom: 2px solid #475569; }
 
-        #label-status { font-size: 16px !important; display: block; }
-        #clock { font-size: 22px !important; display: block; }
+        #label-status { font-size: 14px !important; display: block; }
+        #clock { font-size: 18px !important; display: block; }
         .text-xs-custom { font-size: 11px !important; }
 
         input { transition: all 0.2s ease; font-size: 16px !important; }
         
         .marquee-container { overflow: hidden; white-space: nowrap; display: flex; background: #064e3b; color: #fff; padding: 8px 0; border-bottom: 1px solid #065f46; }
-        .marquee-container span { font-size: 14px !important; }
+        .marquee-container span { font-size: 13px !important; }
         .animate-marquee { display: inline-block; animation: marquee 25s linear infinite; }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        th { font-size: 12px !important; text-transform: uppercase; letter-spacing: 0.1em; color: #cbd5e1; }
+        /* Perbaikan: Font header tabel lebih kecil di mobile agar muat */
+        th { font-size: 10px !important; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; }
+        td { font-size: 14px !important; }
 
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 22px;
+            border-radius: 9999px;
+            margin-bottom: 2.5rem;
+        }
+
+        .pill-maintenance { background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); }
+        .pill-closed { background-color: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); }
+
+        .dot { width: 8px; height: 8px; border-radius: 50%; position: relative; }
+        .dot::after {
+            content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%;
+            animation: live-pulse 2.5s infinite;
+        }
+        .dot-red, .dot-red::after { background-color: var(--status-red); }
+        .dot-amber, .dot-amber::after { background-color: var(--status-amber); }
+
+        @keyframes live-pulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(4.5); opacity: 0; } }
+
+        .m-title { font-size: clamp(32px, 8vw, 64px) !important; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; }
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body class="transition-colors duration-200">
 
-    <div id="m-screen" class="fixed inset-0 z-[9999] bg-slate-950 flex flex-col items-center justify-center p-6 text-center hidden fade-in">
-        <div class="bg-slate-900 p-10 rounded-3xl border-thin shadow-2xl max-w-lg">
-            <i data-lucide="cog" class="w-16 h-16 text-emerald-400 mx-auto mb-6 animate-spin-slow" style="animation: spin 4s linear infinite;"></i>
-            <h1 class="font-bold mb-2 uppercase tracking-tighter text-white" style="font-size: 32px !important;">Maintenance</h1>
-            <p id="m-text" class="text-slate-300 mb-6 font-medium leading-relaxed"></p>
-            <div class="inline-block px-6 py-2 bg-slate-800 rounded-full border border-slate-700">
-                <span id="m-eta" class="font-mono text-emerald-400 font-bold uppercase tracking-wider text-sm"></span>
+    <div id="m-screen" class="fixed inset-0 z-[9999] bg-[#020617] flex items-center justify-center p-6 hidden fade-in">
+        <div class="max-w-4xl w-full px-4 md:px-12 text-left">
+            <div id="status-pill-container" class="status-pill">
+                <span id="status-dot" class="dot"></span>
+                <span id="status-label" class="font-extrabold uppercase tracking-[0.2em] text-[10px] md:text-xs">STATUS</span>
+            </div>
+
+            <h1 id="status-title" class="m-title mb-8 text-white">Status</h1>
+
+            <p id="m-text" class="text-slate-400 font-medium leading-relaxed mb-12 max-w-2xl" style="font-size: clamp(16px, 4vw, 22px) !important;">
+                Pesan status...
+            </p>
+
+            <div id="eta-container" class="pt-10 border-t border-slate-800/60 flex flex-col gap-2">
+                <span id="status-eta-label" class="text-slate-500 text-[10px] uppercase tracking-[0.3em] font-extrabold">Estimasi Selesai</span>
+                <span id="m-eta" class="text-white font-bold text-xl md:text-3xl">--:--</span>
             </div>
         </div>
     </div>
@@ -90,18 +127,17 @@
             <div class="animate-marquee" id="marquee-2"></div>
         </div>
 
-        <header class="max-w-7xl mx-auto pt-10 pb-6 px-6">
+        <header class="max-w-7xl mx-auto pt-8 pb-6 px-6">
             <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <div id="year-badge" class="text-emerald-400 font-extrabold tracking-widest uppercase mb-1 text-xs-custom">...</div>
-                    <h1 class="font-extrabold tracking-tight text-white" style="font-size: 32px !important;">Jadwal Imsakiyah</h1>
+                    <div id="year-badge" class="text-emerald-400 font-extrabold tracking-widest uppercase mb-1 text-[10px]">...</div>
+                    <h1 class="font-extrabold tracking-tight text-white" style="font-size: clamp(24px, 6vw, 32px) !important;">Jadwal Imsakiyah</h1>
                 </div>
-                
-                <div class="relative flex items-center gap-2">
-                    <div class="relative">
+                <div class="relative flex items-center gap-2 w-full md:w-auto">
+                    <div class="relative w-full">
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4"></i>
                         <input type="text" id="search-input" placeholder="Cari Kota..." 
-                            class="pl-10 pr-4 py-2 w-72 rounded-lg border-thin bg-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-white placeholder-slate-500">
+                            class="pl-10 pr-4 py-2 w-full md:w-72 rounded-lg border-thin bg-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-white placeholder-slate-500">
                         <div id="results" class="absolute left-0 right-0 z-[100] mt-1 bg-slate-800 rounded-lg shadow-xl border-thin hidden overflow-hidden"></div>
                     </div>
                 </div>
@@ -109,19 +145,19 @@
         </header>
 
         <main class="max-w-7xl mx-auto px-6 mb-20">
-            <div id="empty-state" class="py-20 border-2 border-dashed border-slate-700 rounded-3xl text-center">
+            <div id="empty-state" class="py-16 border-2 border-dashed border-slate-700 rounded-3xl text-center">
                 <i data-lucide="map-pin" class="w-10 h-10 text-slate-500 mx-auto mb-4"></i>
-                <p class="text-white font-semibold italic">Silakan pilih lokasi untuk memuat jadwal Ramadan.</p>
+                <p class="text-white font-semibold italic text-sm md:text-base px-4">Silakan pilih lokasi untuk memuat jadwal Ramadan.</p>
             </div>
 
-            <div id="main-ui" class="hidden space-y-8">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 py-8 border-y divider-neutral">
+            <div id="main-ui" class="hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 py-6 border-y divider-neutral">
                     <div>
                         <div class="flex items-center gap-2 text-emerald-400 font-bold uppercase tracking-widest mb-2 text-xs-custom">
-                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span id="city-name-display" style="font-size: 16px !important;">-</span>
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span id="city-name-display" style="font-size: 14px !important;">-</span>
                         </div>
-                        <h2 id="current-date-display" class="font-extrabold mb-1 tracking-tight text-white" style="font-size: 36px !important;">...</h2>
-                        <p id="hijri-display" class="text-emerald-100 font-medium italic" style="font-size: 18px !important;">...</p>
+                        <h2 id="current-date-display" class="font-extrabold mb-1 tracking-tight text-white" style="font-size: clamp(24px, 5vw, 36px) !important;">...</h2>
+                        <p id="hijri-display" class="text-emerald-100 font-medium italic" style="font-size: 16px !important;">...</p>
                     </div>
                     <div class="lg:text-right flex flex-col lg:items-end justify-center">
                         <span id="label-status" class="font-extrabold text-emerald-400 uppercase tracking-[0.2em] mb-1">Menghitung...</span>
@@ -130,21 +166,21 @@
                     </div>
                 </div>
 
-                <div id="grid-times" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4"></div>
+                <div id="grid-times" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 md:gap-4"></div>
 
                 <div class="space-y-6">
-                    <div class="border-thin rounded-2xl overflow-hidden shadow-sm">
-                        <div class="overflow-x-auto max-h-[600px]" id="table-scroll-container">
-                            <table class="w-full text-left">
+                    <div class="border-thin rounded-2xl overflow-hidden shadow-sm bg-slate-900/30">
+                        <div class="overflow-x-auto max-h-[500px]" id="table-scroll-container">
+                            <table class="w-full text-left border-collapse">
                                 <thead class="sticky-th">
                                     <tr class="text-white">
-                                        <th class="px-6 py-4">Hari</th>
-                                        <th class="px-4 py-4">Imsak</th>
-                                        <th class="px-4 py-4">Subuh</th>
-                                        <th class="px-4 py-4">Dzuhur</th>
-                                        <th class="px-4 py-4">Ashar</th>
-                                        <th class="px-4 py-4">Maghrib</th>
-                                        <th class="px-4 py-4">Isya</th>
+                                        <th class="px-4 md:px-6 py-4 whitespace-nowrap">Hari</th>
+                                        <th class="px-3 md:px-4 py-4">Imsak</th>
+                                        <th class="px-3 md:px-4 py-4">Subuh</th>
+                                        <th class="px-3 md:px-4 py-4">Dzuhur</th>
+                                        <th class="px-3 md:px-4 py-4">Ashar</th>
+                                        <th class="px-3 md:px-4 py-4">Maghrib</th>
+                                        <th class="px-3 md:px-4 py-4">Isya</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table-body" class="divide-y divider-neutral text-white"></tbody>
@@ -152,25 +188,25 @@
                         </div>
                     </div>
 
-                    <div class="bg-slate-900/50 p-8 rounded-3xl border-thin flex flex-col items-center text-center">
+                    <div class="bg-slate-900/50 p-6 md:p-8 rounded-3xl border-thin flex flex-col items-center text-center">
                         <div class="flex items-center gap-2 text-emerald-400 mb-4">
                             <i data-lucide="info" class="w-5 h-5"></i>
                             <h4 class="font-bold uppercase tracking-[0.3em] text-xs-custom">Informasi Data</h4>
                         </div>
-                        <p class="leading-relaxed max-w-2xl mb-8 font-medium" style="font-size: 15px !important;">
+                        <p class="leading-relaxed max-w-2xl mb-8 font-medium text-sm md:text-base">
                             Jadwal imsakiyah ini dihitung berdasarkan titik koordinat wilayah masing-masing menggunakan data dari 
                             <span class="font-bold text-white underline decoration-emerald-500/40">Kementerian Agama Republik Indonesia (Bimas Islam)</span>. 
                         </p>
-                        <div class="w-full max-w-xl border-t divider-neutral pt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="w-full max-w-xl border-t divider-neutral pt-8 grid grid-cols-2 gap-4 md:gap-8">
                             <div class="flex flex-col items-center gap-2">
-                                <div class="text-emerald-400 mb-1"><i data-lucide="calendar" class="w-6 h-6"></i></div>
-                                <h5 class="font-bold uppercase tracking-widest text-slate-400 text-xs-custom">Tahun Hijriah</h5>
-                                <p class="font-bold text-white">1447 H</p>
+                                <div class="text-emerald-400 mb-1"><i data-lucide="calendar" class="w-5 h-5 md:w-6 md:h-6"></i></div>
+                                <h5 class="font-bold uppercase tracking-widest text-slate-400 text-[10px]">Tahun Hijriah</h5>
+                                <p class="font-bold text-white text-sm md:text-base">1447 H</p>
                             </div>
                             <div class="flex flex-col items-center gap-2">
-                                <div class="text-emerald-400 mb-1"><i data-lucide="shield-check" class="w-6 h-6"></i></div>
-                                <h5 class="font-bold uppercase tracking-widest text-slate-400 text-xs-custom">Akurasi</h5>
-                                <p class="font-bold text-white" style="font-size: 15px !important;">Real-time Location Sync</p>
+                                <div class="text-emerald-400 mb-1"><i data-lucide="shield-check" class="w-5 h-5 md:w-6 md:h-6"></i></div>
+                                <h5 class="font-bold uppercase tracking-widest text-slate-400 text-[10px]">Akurasi</h5>
+                                <p class="font-bold text-white text-sm md:text-base">Location Sync</p>
                             </div>
                         </div>
                     </div>
@@ -178,20 +214,18 @@
             </div>
         </main>
 
-        <footer class="max-w-7xl mx-auto px-6 py-10 border-t divider-neutral flex flex-col md:flex-row justify-between items-center gap-4">
-            <p class="font-bold text-white uppercase tracking-[0.4em] text-xs-custom">Kemenag RI • RAMADAN 2026</p>
-            <p class="text-slate-500 font-bold uppercase tracking-tight text-xs-custom">Aplikasi ini dibuat untuk kemudahan akses jadwal ibadah.</p>
+        <footer class="max-w-7xl mx-auto px-6 py-10 border-t divider-neutral flex flex-col md:flex-row justify-between items-center gap-6 text-center">
+            <p class="font-bold text-white uppercase tracking-[0.4em] text-[10px]">Kemenag RI • RAMADAN 2026</p>
+            <p class="text-slate-500 font-bold uppercase tracking-tight text-[10px]">Aplikasi ini dibuat untuk kemudahan akses jadwal ibadah.</p>
         </footer>
     </div>
 
     <script>
-        let isMaintenanceMode = false;
-        let clockInterval;
+        let currentStatusState = "NORMAL";
 
         function checkMaintenanceStatus() {
             const oldScript = document.getElementById('status-checker');
             if (oldScript) oldScript.remove();
-            
             const script = document.createElement('script');
             script.id = 'status-checker';
             script.src = `status.js?v=${new Date().getTime()}`;
@@ -199,24 +233,47 @@
             script.onload = () => {
                 const mScreen = document.getElementById('m-screen');
                 const mainApp = document.getElementById('main-app');
+                const pill = document.getElementById('status-pill-container');
+                const dot = document.getElementById('status-dot');
+                const label = document.getElementById('status-label');
+                const title = document.getElementById('status-title');
+                const etaContainer = document.getElementById('eta-container');
 
-                if (typeof maintenanceConfig !== 'undefined' && maintenanceConfig.isMaintenance) {
-                    if (!isMaintenanceMode) {
-                        isMaintenanceMode = true;
+                if (typeof maintenanceConfig !== 'undefined') {
+                    if (maintenanceConfig.isClosed) {
                         mScreen.classList.remove('hidden');
                         mainApp.classList.add('hidden');
-                        document.getElementById('m-text').innerText = maintenanceConfig.message;
-                        document.getElementById('m-eta').innerText = "Estimasi: " + maintenanceConfig.estimatedFinish;
-                        lucide.createIcons();
-                        if (clockInterval) clearInterval(clockInterval);
+                        pill.className = "status-pill pill-closed";
+                        dot.className = "dot dot-amber";
+                        label.className = "text-amber-500 font-extrabold uppercase tracking-[0.2em] text-[10px] md:text-xs";
+                        label.innerText = "Server Closed";
+                        title.innerHTML = "Aplikasi Telah<br>Berakhir.";
+                        title.className = "m-title mb-8 text-amber-500";
+                        document.getElementById('m-text').innerText = maintenanceConfig.closedMessage;
+                        etaContainer.classList.add('hidden');
+                        currentStatusState = "CLOSED";
+                    } 
+                    else if (maintenanceConfig.isMaintenance) {
+                        mScreen.classList.remove('hidden');
+                        mainApp.classList.add('hidden');
+                        pill.className = "status-pill pill-maintenance";
+                        dot.className = "dot dot-red";
+                        label.className = "text-red-500 font-extrabold uppercase tracking-[0.2em] text-[10px] md:text-xs";
+                        label.innerText = "System Maintenance";
+                        title.innerHTML = "Sedang dalam<br>Pembaruan.";
+                        title.className = "m-title mb-8 text-white";
+                        document.getElementById('m-text').innerText = maintenanceConfig.maintenanceMessage;
+                        document.getElementById('m-eta').innerText = maintenanceConfig.maintenanceETA;
+                        etaContainer.classList.remove('hidden');
+                        currentStatusState = "MAINTENANCE";
+                    } 
+                    else {
+                        if (currentStatusState !== "NORMAL") window.location.reload();
+                        mScreen.classList.add('hidden');
+                        mainApp.classList.remove('hidden');
+                        currentStatusState = "NORMAL";
                     }
-                } else {
-                    if (isMaintenanceMode) {
-                        isMaintenanceMode = false;
-                        window.location.reload(); // Refresh untuk memastikan state kembali bersih
-                    }
-                    mScreen.classList.add('hidden');
-                    mainApp.classList.remove('hidden');
+                    lucide.createIcons();
                 }
             };
             document.head.appendChild(script);
@@ -241,27 +298,20 @@
             return "GMT+" + offset;
         }
 
-        function setupUI() {
+        async function init() {
+            checkMaintenanceStatus();
             const yearMasehi = new Date(CONFIG.startDate).getFullYear();
             document.getElementById('year-badge').innerText = `Ramadan ${CONFIG.hijriYear} / ${yearMasehi} M`;
             const marqueeHTML = `<span class="mx-12 font-bold uppercase">Marhaban Ya Ramadan 1447 H</span> <span class="mx-12 font-bold uppercase italic text-emerald-200">Selamat Menunaikan Ibadah Puasa</span>`.repeat(5); 
             document.getElementById('marquee-1').innerHTML = marqueeHTML;
             document.getElementById('marquee-2').innerHTML = marqueeHTML;
-        }
-
-        async function init() {
-            checkMaintenanceStatus();
-            setupUI();
             lucide.createIcons();
             try {
                 const res = await fetch('https://api.myquran.com/v2/sholat/kota/semua');
                 const json = await res.json();
                 kotaList = json.data;
             } catch (e) { console.error("API Error"); }
-            
-            if (!isMaintenanceMode) {
-                clockInterval = setInterval(updateClock, 1000);
-            }
+            setInterval(updateClock, 1000);
         }
 
         const input = document.getElementById('search-input');
@@ -274,11 +324,7 @@
             if(match.length > 0) {
                 results.innerHTML = match.map(k => {
                     const namaTampil = formatNamaKota(k.lokasi);
-                    return `
-                        <div onclick="getRamadanJadwal('${k.id}', '${namaTampil}')" class="px-6 py-4 hover:bg-slate-700 cursor-pointer font-bold border-b border-slate-800 last:border-0 text-white flex items-center gap-3">
-                            <i data-lucide="map-pin" class="w-4 h-4 text-emerald-400"></i>
-                            <span>${namaTampil}</span>
-                        </div>`;
+                    return `<div onclick="getRamadanJadwal('${k.id}', '${namaTampil}')" class="px-6 py-4 hover:bg-slate-700 cursor-pointer font-bold border-b border-slate-800 last:border-0 text-white flex items-center gap-3"><i data-lucide="map-pin" class="w-4 h-4 text-emerald-400"></i><span class="text-sm">${namaTampil}</span></div>`;
                 }).join('');
                 results.classList.remove('hidden');
                 lucide.createIcons();
@@ -291,7 +337,6 @@
             document.getElementById('city-name-display').innerText = nama;
             document.getElementById('empty-state').classList.add('hidden');
             document.getElementById('main-ui').classList.remove('hidden');
-            
             const n = nama.toUpperCase();
             currentOffset = n.match(/BALI|DENPASAR|MAKASSAR|MANADO|SAMARINDA|KUPANG|MATARAM|GORONTALO|BALIKPAPAN|PALU|KENDARI|BITUNG|BANJARMASIN|SAMARINDA|TARAKAN/) ? 8 : (n.match(/PAPUA|MALUKU|AMBON|JAYAPURA|SORONG|TERNATE|MANOKWARI|BIAK|MERAUKE/) ? 9 : 7);
 
@@ -320,28 +365,15 @@
             const nowUTC = new Date().getTime() + (new Date().getTimezoneOffset() * 60000);
             const cityNow = new Date(nowUTC + (3600000 * currentOffset));
             const todayStr = cityNow.toLocaleDateString('en-CA'); 
-            
             document.getElementById('current-date-display').innerText = cityNow.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric'});
             const todayJadwal = list.find(d => d.date === todayStr) || list[0];
-            
-            const times = [
-                {l: 'Imsak', t: todayJadwal.imsak}, {l: 'Subuh', t: todayJadwal.subuh},
-                {l: 'Dzuhur', t: todayJadwal.dzuhur}, {l: 'Ashar', t: todayJadwal.ashar},
-                {l: 'Maghrib', t: todayJadwal.maghrib}, {l: 'Isya', t: todayJadwal.isya}
-            ];
-
-            grid.innerHTML = times.map(t => `
-                <div class="p-6 border-thin rounded-2xl bg-slate-900/50 hover:bg-slate-800 transition-all group">
-                    <p class="font-extrabold text-white group-hover:text-emerald-400 uppercase tracking-widest mb-2 transition-colors text-xs-custom">${t.l}</p>
-                    <p class="font-extrabold text-white" style="font-size: 24px !important;">${t.t}</p>
-                </div>
-            `).join('');
-            
+            const times = [{l: 'Imsak', t: todayJadwal.imsak}, {l: 'Subuh', t: todayJadwal.subuh}, {l: 'Dzuhur', t: todayJadwal.dzuhur}, {l: 'Ashar', t: todayJadwal.ashar}, {l: 'Maghrib', t: todayJadwal.maghrib}, {l: 'Isya', t: todayJadwal.isya}];
+            grid.innerHTML = times.map(t => `<div class="p-4 md:p-6 border-thin rounded-2xl bg-slate-900/50 hover:bg-slate-800 transition-all group"><p class="font-extrabold text-white group-hover:text-emerald-400 uppercase tracking-widest mb-1 transition-colors text-[10px]">${t.l}</p><p class="font-extrabold text-white text-xl md:text-2xl">${t.t}</p></div>`).join('');
             list.forEach((d, i) => {
                 const isT = d.date === todayStr;
                 const tr = document.createElement('tr');
                 if(isT) { tr.className = 'row-today'; tr.id = 'today-row'; }
-                tr.innerHTML = `<td class="px-6 py-4 font-mono text-white font-bold">${i + 1} Ramadan</td><td class="px-4 py-4 col-highlight">${d.imsak}</td><td class="px-4 py-4 font-medium text-white">${d.subuh}</td><td class="px-4 py-4 font-medium text-white">${d.dzuhur}</td><td class="px-4 py-4 font-medium text-white">${d.ashar}</td><td class="px-4 py-4 col-highlight">${d.maghrib}</td><td class="px-4 py-4 font-medium text-white">${d.isya}</td>`;
+                tr.innerHTML = `<td class="px-4 md:px-6 py-4 font-mono text-white font-bold whitespace-nowrap">${i + 1} Ramadan</td><td class="px-3 md:px-4 py-4 col-highlight">${d.imsak}</td><td class="px-3 md:px-4 py-4 font-medium text-white">${d.subuh}</td><td class="px-3 md:px-4 py-4 font-medium text-white">${d.dzuhur}</td><td class="px-3 md:px-4 py-4 font-medium text-white">${d.ashar}</td><td class="px-3 md:px-4 py-4 col-highlight">${d.maghrib}</td><td class="px-3 md:px-4 py-4 font-medium text-white">${d.isya}</td>`;
                 table.appendChild(tr);
             });
             document.getElementById('hijri-display').innerText = todayJadwal.tanggal;
@@ -350,13 +382,11 @@
         }
 
         function updateClock() {
-            if (isMaintenanceMode) return;
-
+            if (currentStatusState !== "NORMAL") return;
             const nowUTC = new Date().getTime() + (new Date().getTimezoneOffset() * 60000);
             const cityTime = new Date(nowUTC + (3600000 * currentOffset));
             const todayStr = cityTime.toLocaleDateString('en-CA');
             const timeString = cityTime.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', second:'2-digit', hour12: false}).replace(/\./g, ':');
-            
             document.getElementById('clock').innerText = `${timeString} ${getTzLabel(currentOffset)}`;
             
             if (jadwalRamadan.length === 0) return;
