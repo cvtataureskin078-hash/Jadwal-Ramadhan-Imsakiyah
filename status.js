@@ -1,7 +1,7 @@
 // status.js
 var maintenanceConfig = {
     isMaintenance: true, 
-    maintenanceMessage: "Kami sedang melakukan pembaruan rutin aplikasi untuk meningkatkan kecepatan akses jadwal. Mohon tunggu sebentar!",
+    maintenanceMessage: "Kami sedang melakukan pembaruan rutin aplikasi untuk meningkatkan kecepatan akses jadwal. Mohon tunggu ya!",
     maintenanceETA: "Aplikasi akan kembali aktif", 
     
     isClosed: false,      
